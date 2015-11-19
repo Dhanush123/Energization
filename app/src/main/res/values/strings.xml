@@ -6,6 +6,11 @@
     <string name="previousButton">image</string>
     <string name="stepID">0</string>
 
+    <string name="hello_world">Android Material Design App Bar/ActionBar</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_share">Share</string>
+    <string name="action_search">Search</string>
+
     <string-array name="steps_array">
         <item>1</item>
         <item>2</item>

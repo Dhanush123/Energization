@@ -1,10 +1,16 @@
 package com.x10host.dhanushpatel.energization;
 
+import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
@@ -23,11 +29,19 @@ public class MainActivity extends AppCompatActivity {
     ImageView iv;
     SeekBar seekBar;
     int stepSelected;
-
+    static final String RES_PREFIX = "android.resource://com.x10host.dhanushpatel.energization/";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+        }
+
         iv = (ImageView) findViewById(R.id.imageView);
         playButton = (ImageButton) findViewById(R.id.playButton);
         previousButton = (ImageButton) findViewById(R.id. previousButton);
@@ -65,8 +79,33 @@ public class MainActivity extends AppCompatActivity {
                // Toast.makeText(getApplicationContext(), "Stopped tracking seekbar", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            Intent i = new Intent(this,SettingsActivity.class);
+            startActivity(i);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
 
     public void onNothingSelected(AdapterView<?> parent) {
         // Another interface callback
@@ -80,9 +119,47 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Can't seek forward more.", Toast.LENGTH_SHORT).show();
         }
         else {
+            if(mPlayer==null) {
+                int id = setStepMusic(step, "short");
+                mPlayer = MediaPlayer.create(getApplicationContext(), id);
+               // mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                mPlayer.start();
+            }
+            if(mPlayer!=null){
+                mPlayer.stop();
+               // mPlayer.reset();
+                int id = setStepMusic(step, "short");
+                mPlayer = MediaPlayer.create(getApplicationContext(), id);
+                /**
+                try {
+                    mPlayer.setDataSource(getApplicationContext(),Uri.parse(RES_PREFIX + id));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                mPlayer.prepareAsync();
+                 **/
+                mPlayer.start();
+            }
+          /**
             int id = setStepMusic(step, "short");
-            mPlayer = MediaPlayer.create(getApplicationContext(), id);
-            mPlayer.start();
+                if(mPlayer!=null) {
+                    mPlayer.reset();
+                    try {
+                        mPlayer.setDataSource(this, Uri.parse(String.valueOf(id)));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    mPlayer.start();
+                }
+                else{
+                    mPlayer = MediaPlayer.create(getApplicationContext(), id);
+                    mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    mPlayer.start();
+                }
+ **/
+
         }
     }
 
