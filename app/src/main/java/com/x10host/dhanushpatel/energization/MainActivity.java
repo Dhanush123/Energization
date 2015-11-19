@@ -1,9 +1,11 @@
 package com.x10host.dhanushpatel.energization;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -29,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     ImageView iv;
     SeekBar seekBar;
     int stepSelected;
+    String audioLengthGot;
+    String audioLength;
     static final String RES_PREFIX = "android.resource://com.x10host.dhanushpatel.energization/";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -81,6 +86,19 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void getAudioLength() {
+        final SharedPreferences mSharedPreference = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        audioLengthGot = (mSharedPreference.getString("audiolength", "Brief"));
+        if (audioLengthGot.equals("Brief")) {
+            audioLength = "short";
+        } else if (audioLengthGot.equals("Detailed")) {
+            audioLength = "long";
+        } else {
+            audioLength = "none";
+        }
+        Log.i("audiolength use in Main", audioLength);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -119,47 +137,32 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Can't seek forward more.", Toast.LENGTH_SHORT).show();
         }
         else {
+            getAudioLength();
             if(mPlayer==null) {
-                int id = setStepMusic(step, "short");
-                mPlayer = MediaPlayer.create(getApplicationContext(), id);
-               // mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                mPlayer.start();
-            }
-            if(mPlayer!=null){
-                mPlayer.stop();
-               // mPlayer.reset();
-                int id = setStepMusic(step, "short");
-                mPlayer = MediaPlayer.create(getApplicationContext(), id);
-                /**
-                try {
-                    mPlayer.setDataSource(getApplicationContext(),Uri.parse(RES_PREFIX + id));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                mPlayer.prepareAsync();
-                 **/
-                mPlayer.start();
-            }
-          /**
-            int id = setStepMusic(step, "short");
-                if(mPlayer!=null) {
-                    mPlayer.reset();
-                    try {
-                        mPlayer.setDataSource(this, Uri.parse(String.valueOf(id)));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    mPlayer.start();
+                if(audioLength.equals("none")){
+                    Log.i("Button press","only pic display");
+                    setPicOnly(step);
                 }
                 else{
+                    int id = setStepMusic(step, audioLength);
                     mPlayer = MediaPlayer.create(getApplicationContext(), id);
-                    mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    Log.i("Button press","music play");
                     mPlayer.start();
                 }
- **/
-
+            }
+            if(mPlayer!=null){
+                if(audioLength.equals("none")){
+                    Log.i("Button press","only pic display");
+                    setPicOnly(step);
+                }
+                else {
+                    mPlayer.stop();
+                    int id = setStepMusic(step, audioLength);
+                    mPlayer = MediaPlayer.create(getApplicationContext(), id);
+                    Log.i("Button press","music play");
+                    mPlayer.start();
+                }
+            }
         }
     }
 
@@ -186,6 +189,88 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("Next music","button pressed");
             }
         });
+    }
+
+    public void setPicOnly(int stepChosen){
+        if (stepChosen == 1) {
+            iv.setImageResource(R.drawable.body1);
+        } else if (stepChosen == 2) {
+            iv.setImageResource(R.drawable.body2);
+        } else if (stepChosen == 3) {
+            iv.setImageResource(R.drawable.body3);
+        } else if (stepChosen == 4) {
+            iv.setImageResource(R.drawable.body4);
+        } else if (stepChosen == 5) {
+            iv.setImageResource(R.drawable.body5);
+        } else if (stepChosen == 6) {
+            iv.setImageResource(R.drawable.body6);
+        } else if (stepChosen == 7) {
+            iv.setImageResource(R.drawable.body7);
+        } else if (stepChosen == 8) {
+            iv.setImageResource(R.drawable.body8);
+        } else if (stepChosen == 9) {
+            iv.setImageResource(R.drawable.body8);
+        } else if (stepChosen == 10) {
+            iv.setImageResource(R.drawable.body10);
+        } else if (stepChosen == 11) {
+            iv.setImageResource(R.drawable.body11);
+        } else if (stepChosen == 12) {
+            iv.setImageResource(R.drawable.body12);
+        } else if (stepChosen == 13) {
+            iv.setImageResource(R.drawable.body13);
+        } else if (stepChosen == 14) {
+            iv.setImageResource(R.drawable.body14);
+        } else if (stepChosen == 15) {
+            iv.setImageResource(R.drawable.body15);
+        } else if (stepChosen == 16) {
+            iv.setImageResource(R.drawable.body16);
+        } else if (stepChosen == 17) {
+            iv.setImageResource(R.drawable.body17);
+        } else if (stepChosen == 18) {
+            iv.setImageResource(R.drawable.body18);
+        } else if (stepChosen == 19) {
+            iv.setImageResource(R.drawable.body19);
+        } else if (stepChosen == 20) {
+            iv.setImageResource(R.drawable.body20);
+        } else if (stepChosen == 21) {
+            iv.setImageResource(R.drawable.body21);
+        } else if (stepChosen == 22) {
+            iv.setImageResource(R.drawable.body22);
+        } else if (stepChosen == 23) {
+            iv.setImageResource(R.drawable.body23);
+        } else if (stepChosen == 24) {
+            iv.setImageResource(R.drawable.body24);
+        } else if (stepChosen == 25) {
+            iv.setImageResource(R.drawable.body25);
+        } else if (stepChosen == 26) {
+            iv.setImageResource(R.drawable.body26);
+        } else if (stepChosen == 27) {
+            iv.setImageResource(R.drawable.body27);
+        } else if (stepChosen == 28) {
+            iv.setImageResource(R.drawable.body28);
+        } else if (stepChosen == 29) {
+            iv.setImageResource(R.drawable.body29);
+        } else if (stepChosen == 30) {
+            iv.setImageResource(R.drawable.body30);
+        } else if (stepChosen == 31) {
+            iv.setImageResource(R.drawable.body31);
+        } else if (stepChosen == 32) {
+            iv.setImageResource(R.drawable.body32);
+        } else if (stepChosen == 33) {
+            iv.setImageResource(R.drawable.body33);
+        } else if (stepChosen == 34) {
+            iv.setImageResource(R.drawable.body34);
+        } else if (stepChosen == 35) {
+            iv.setImageResource(R.drawable.body35);
+        } else if (stepChosen == 36) {
+            iv.setImageResource(R.drawable.body36);
+        } else if (stepChosen == 37) {
+            iv.setImageResource(R.drawable.body37);
+        } else if (stepChosen == 38) {
+            iv.setImageResource(R.drawable.body38);
+        } else if (stepChosen == 39) {
+            iv.setImageResource(R.drawable.body39);
+        }
     }
 
     public int setStepMusic(int stepChosen,String length){
@@ -441,7 +526,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onDestroy() {
-        mPlayer.stop();
+        if(mPlayer!=null) {
+            mPlayer.stop();
+        }
         super.onDestroy();
     }
 }

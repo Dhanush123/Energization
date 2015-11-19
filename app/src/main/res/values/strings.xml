@@ -10,6 +10,9 @@
     <string name="action_settings">Settings</string>
     <string name="action_share">Share</string>
     <string name="action_search">Search</string>
+    <string name="noneAudio">None</string>
+    <string name="briefAudio">Brief</string>
+    <string name="detailedAudio">Detailed</string>
 
     <string-array name="steps_array">
         <item>1</item>
