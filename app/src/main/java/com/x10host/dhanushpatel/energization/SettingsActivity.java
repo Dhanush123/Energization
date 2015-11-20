@@ -1,6 +1,7 @@
 package com.x10host.dhanushpatel.energization;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,18 +10,24 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 public class SettingsActivity extends AppCompatActivity {
     private RadioGroup radioGroup;
     private RadioButton radioButton;
+    private Button feedbackButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
+        feedbackButton = (Button) findViewById(R.id.feedbackButton);
+        addButtonListener();
+
         final SharedPreferences mSharedPreference= PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         String audioLengthGot = (mSharedPreference.getString("audiolength","Brief"));
         if(audioLengthGot.equals("None")){
@@ -60,5 +67,23 @@ public class SettingsActivity extends AppCompatActivity {
         Log.i("Current/new audiolength", debugging);
         super.onStop();
     }
+    public void addButtonListener() {
+
+
+        feedbackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("plain/text");
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "ee-app-support@crystalclarity.com" });
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback on Energization app");
+                //intent.putExtra(Intent.EXTRA_TEXT, "mail body");
+                startActivity(Intent.createChooser(intent,""));
+                Log.i("Feedback button", "pressed");
+            }
+        });
+
+    }
+
 
 }

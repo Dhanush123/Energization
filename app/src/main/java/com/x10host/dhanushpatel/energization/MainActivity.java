@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     ImageButton nextButton;
     MediaPlayer mPlayer;
     TextView stepShow;
+    TextView stepNumName;
     ImageView iv;
     SeekBar seekBar;
     int stepSelected;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         nextButton = (ImageButton) findViewById(R.id.nextButton);
         seekBar = (SeekBar) findViewById(R.id.seekBar);;
         stepShow = (TextView) findViewById(R.id.stepID);
+        stepNumName = (TextView) findViewById(R.id.step);
         iv.setImageResource(R.drawable.splashscreen);
 
         // Create an ArrayAdapter using the string array and a default spinner layout
@@ -69,6 +71,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progressValue, boolean fromUser) {
                 stepSelected = progressValue;
+                seekBar.setProgress(stepSelected);
+                if (stepSelected==0){
+                    previousButton.setVisibility(View.GONE);
+                }
+                else{
+                    previousButton.setVisibility(View.VISIBLE);
+                }
+                startMusic(stepSelected);
                // Toast.makeText(getApplicationContext(), "Changing seekbar's progress", Toast.LENGTH_SHORT).show();
             }
 
@@ -119,6 +129,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             return true;
         }
+        else if(id==R.id.action_info) {
+            Intent i = new Intent(this,InfoActivity.class);
+            startActivity(i);
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -130,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startMusic(int step){
-        if(step < 1){
+        if(step < 0){
             Toast.makeText(getApplicationContext(), "Can't seek back more.", Toast.LENGTH_SHORT).show();
         }
         else if(step > 39){
@@ -171,28 +186,48 @@ public class MainActivity extends AppCompatActivity {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                seekBar.setProgress(stepSelected);
+                stepShow.setText("Selected: " + stepSelected + "/" + seekBar.getMax());
                 startMusic(stepSelected);
-                Log.i("Play music", "button pressed");
+                Log.i("Play music step",""+stepSelected);
             }
         });
         previousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startMusic(stepSelected-1);
-                Log.i("Previous music", "button pressed");
+                stepSelected--;
+                seekBar.setProgress(stepSelected);
+                stepShow.setText("Selected: " + stepSelected + "/" + seekBar.getMax());
+                startMusic(stepSelected);
+                Log.i("Play music step",""+stepSelected);
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startMusic(stepSelected+1);
-                Log.i("Next music","button pressed");
+                stepSelected++;
+                seekBar.setProgress(stepSelected);
+                stepShow.setText("Selected: " + stepSelected + "/" + seekBar.getMax());
+                startMusic(stepSelected);
+                Log.i("Play music step",""+stepSelected);
             }
         });
+
     }
 
     public void setPicOnly(int stepChosen){
-        if (stepChosen == 1) {
+        if (stepChosen == 0) {
+            iv.setImageResource(R.drawable.splashscreen);
+            //stepNumName.setText("");
+        }
+        //--- new
+        else if (stepChosen == 1) {
+           // iv.setImageResource(R.drawable.);
+        } else if (stepChosen == 2) {
+          //  iv.setImageResource(R.drawable.);
+        }
+        // -- new ended
+        else if (stepChosen == 1) {
             iv.setImageResource(R.drawable.body1);
         } else if (stepChosen == 2) {
             iv.setImageResource(R.drawable.body2);

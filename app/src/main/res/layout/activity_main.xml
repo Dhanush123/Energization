@@ -30,51 +30,68 @@
 
     <SeekBar
         android:id="@+id/seekBar"
-        android:layout_width="300dp"
+        android:layout_width="225sp"
         android:layout_height="wrap_content"
         android:max="39"
         android:layout_below="@+id/toolbar"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
-    <ImageButton
-        android:id="@+id/playButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/play24"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:contentDescription="image" />
-
     <TextView
         android:id="@+id/stepID"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/seekBar"
-        android:layout_marginLeft="29dp"
-        android:layout_marginTop="14dp"
-        android:contentDescription="@string/stepID"/>
+        android:layout_alignParentRight="true"
+        android:contentDescription="@string/stepID"
+        android:layout_marginRight="10sp"
+        android:textSize="15sp"
+        android:layout_below="@+id/toolbar"
+        android:layout_toRightOf="@+id/seekBar"/>
+
+    <ImageButton
+        android:id="@+id/playButton"
+        android:layout_width="100dip"
+        android:layout_height="50dip"
+        android:src="@drawable/play24"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:contentDescription="image"
+        android:background="@null"/>
 
     <ImageButton
         android:id="@+id/nextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100sp"
+        android:layout_height="50sp"
         android:src="@drawable/next24"
         android:layout_alignParentBottom="true"
         android:layout_alignRight="@+id/imageView"
         android:layout_alignEnd="@+id/imageView"
-        android:contentDescription="@string/nextButton" />
+        android:contentDescription="@string/nextButton"
+        android:background="@null"/>
 
     <ImageButton
         android:id="@+id/previousButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100sp"
+        android:layout_height="50sp"
         android:src="@drawable/previous24"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:contentDescription="@string/previousButton" />
+        android:contentDescription="@string/previousButton"
+        android:background="@null"
+        />
+
+    <TextView
+        android:id="@+id/step"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/step"
+        android:layout_below="@+id/seekBar"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="10sp"
+        android:textSize="25sp"
+        android:textColor="#000000"/>
 
 
 </RelativeLayout>

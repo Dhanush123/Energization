@@ -13,6 +13,9 @@
     <string name="noneAudio">None</string>
     <string name="briefAudio">Brief</string>
     <string name="detailedAudio">Detailed</string>
+    <string name="feedbackButton">Send Feedback</string>
+    <string name="action_info">action_info</string>
+    <string name="step">step</string>
 
     <string-array name="steps_array">
         <item>1</item>
