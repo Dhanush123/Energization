@@ -2,9 +2,11 @@ package com.x10host.dhanushpatel.energization;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -14,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -30,10 +31,12 @@ public class MainActivity extends AppCompatActivity {
     TextView stepShow;
     TextView stepNumName;
     ImageView iv;
-    SeekBar seekBar;
+    SeekBar seekBarStep;
     int stepSelected;
     String audioLengthGot;
+    int bufferGot;
     String audioLength;
+    int bufferS;
     static final String RES_PREFIX = "android.resource://com.x10host.dhanushpatel.energization/";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,48 +55,16 @@ public class MainActivity extends AppCompatActivity {
         playButton = (ImageButton) findViewById(R.id.playButton);
         previousButton = (ImageButton) findViewById(R.id. previousButton);
         nextButton = (ImageButton) findViewById(R.id.nextButton);
-        seekBar = (SeekBar) findViewById(R.id.seekBar);;
+        seekBarStep = (SeekBar) findViewById(R.id.seekBarStep);
         stepShow = (TextView) findViewById(R.id.stepID);
         stepNumName = (TextView) findViewById(R.id.step);
         iv.setImageResource(R.drawable.splashscreen);
 
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.steps_array, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        addButtonListener();
+        seekBarStep.getProgressDrawable().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+        seekBarStep.getThumb().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
 
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-           // int progress = 0;
+        addListeners();
 
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progressValue, boolean fromUser) {
-                stepSelected = progressValue;
-                seekBar.setProgress(stepSelected);
-                if (stepSelected==0){
-                    previousButton.setVisibility(View.GONE);
-                }
-                else{
-                    previousButton.setVisibility(View.VISIBLE);
-                }
-                startMusic(stepSelected);
-               // Toast.makeText(getApplicationContext(), "Changing seekbar's progress", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-               // Toast.makeText(getApplicationContext(), "Started tracking seekbar", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                stepShow.setText("Selected: " + stepSelected + "/" + seekBar.getMax());
-               // textView.setText("Covered: " + progress + "/" + seekBar.getMax());
-               // Toast.makeText(getApplicationContext(), "Stopped tracking seekbar", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     public void getAudioLength() {
@@ -107,6 +78,26 @@ public class MainActivity extends AppCompatActivity {
             audioLength = "none";
         }
         Log.i("audiolength use in Main", audioLength);
+    }
+
+    public void getAndSetBuffer() {
+        final SharedPreferences mSharedPreference = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        bufferGot = (mSharedPreference.getInt("buffer",0));
+        bufferS = bufferGot * 1000;
+        if(bufferGot!=0) {
+            new CountDownTimer(bufferS, 1000) {
+
+                public void onTick(long millisUntilFinished) {
+                    //mTextField.setText("seconds remaining: " + millisUntilFinished / 1000);
+                }
+
+                public void onFinish() {
+                    Log.i(bufferGot+"s buffering","done");
+                    mPlayer.start();
+                    //mTextField.setText("done!");
+                }
+            }.start();
+        }
     }
 
     @Override
@@ -148,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         if(step < 0){
             Toast.makeText(getApplicationContext(), "Can't seek back more.", Toast.LENGTH_SHORT).show();
         }
-        else if(step > 39){
+        else if(step > 43){
             Toast.makeText(getApplicationContext(), "Can't seek forward more.", Toast.LENGTH_SHORT).show();
         }
         else {
@@ -156,38 +147,48 @@ public class MainActivity extends AppCompatActivity {
             if(mPlayer==null) {
                 if(audioLength.equals("none")){
                     Log.i("Button press","only pic display");
-                    setPicOnly(step);
+                    setPic(step);
                 }
                 else{
                     int id = setStepMusic(step, audioLength);
-                    mPlayer = MediaPlayer.create(getApplicationContext(), id);
-                    Log.i("Button press","music play");
-                    mPlayer.start();
+                    if(id!=-100000) {
+                        mPlayer = MediaPlayer.create(getApplicationContext(), id);
+                        Log.i("Button press", "music play");
+                        mPlayer.start();
+                    }
+                    else{
+                        setPic(step);
+                    }
                 }
             }
             if(mPlayer!=null){
                 if(audioLength.equals("none")){
                     Log.i("Button press","only pic display");
-                    setPicOnly(step);
+                    setPic(step);
                 }
                 else {
                     mPlayer.stop();
                     int id = setStepMusic(step, audioLength);
-                    mPlayer = MediaPlayer.create(getApplicationContext(), id);
-                    Log.i("Button press","music play");
-                    mPlayer.start();
+                    if(id!=-100000) {
+                        mPlayer = MediaPlayer.create(getApplicationContext(), id);
+                        Log.i("Button press", "music play");
+                        getAndSetBuffer();
+                    }
+                    else{
+                        setPic(step);
+                    }
                 }
             }
         }
     }
 
-    public void addButtonListener() {
+    public void addListeners() {
 
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                seekBar.setProgress(stepSelected);
-                stepShow.setText("Selected: " + stepSelected + "/" + seekBar.getMax());
+                seekBarStep.setProgress(stepSelected);
+                stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
                 startMusic(stepSelected);
                 Log.i("Play music step",""+stepSelected);
             }
@@ -196,8 +197,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 stepSelected--;
-                seekBar.setProgress(stepSelected);
-                stepShow.setText("Selected: " + stepSelected + "/" + seekBar.getMax());
+                seekBarStep.setProgress(stepSelected);
+                stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
                 startMusic(stepSelected);
                 Log.i("Play music step",""+stepSelected);
             }
@@ -206,353 +207,260 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 stepSelected++;
-                seekBar.setProgress(stepSelected);
-                stepShow.setText("Selected: " + stepSelected + "/" + seekBar.getMax());
+                seekBarStep.setProgress(stepSelected);
+                stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
                 startMusic(stepSelected);
                 Log.i("Play music step",""+stepSelected);
+            }
+        });
+        seekBarStep.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBarStep, int progressValue, boolean fromUser) {
+                stepSelected = progressValue;
+                seekBarStep.setProgress(stepSelected);
+                if (stepSelected == 0) {
+                    previousButton.setVisibility(View.GONE);
+                } else {
+                    previousButton.setVisibility(View.VISIBLE);
+                }
+
+                if (stepSelected == 43) {
+                    nextButton.setVisibility(View.GONE);
+                } else {
+                    nextButton.setVisibility(View.VISIBLE);
+                }
+                startMusic(stepSelected);
+                // Toast.makeText(getApplicationContext(), "Changing seekbar's progress", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBarStep) {
+                // Toast.makeText(getApplicationContext(), "Started tracking seekbar", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBarStep) {
+                if (stepSelected > 43) {
+                    stepSelected = 43;
+                }
+                stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
+                // textView.setText("Covered: " + progress + "/" + seekBarStep.getMax());
+                // Toast.makeText(getApplicationContext(), "Stopped tracking seekbar", Toast.LENGTH_SHORT).show();
             }
         });
 
     }
 
-    public void setPicOnly(int stepChosen){
+    public void setPic(int stepChosen){
         if (stepChosen == 0) {
             iv.setImageResource(R.drawable.splashscreen);
-            //stepNumName.setText("");
+            stepNumName.setText("");
+        }
+        else if (stepChosen == 1) {
+            //num reps instruction
+            stepNumName.setText("");
+            iv.setImageResource(R.drawable.instruction);
+        } else if (stepChosen == 2) {
+            //prayer
+            stepNumName.setText("Begin with this prayer");
+            iv.setImageResource(R.drawable.prayer);
+        }
+        else if (stepChosen == 3) {
+            //first actual exercise
+            iv.setImageResource(R.drawable.body1);
+            stepNumName.setText("1: Double Breathing (palms touching)");
+        } else if (stepChosen == 4) {
+            iv.setImageResource(R.drawable.body2);
+            stepNumName.setText("2: Calf Recharging");
+        } else if (stepChosen == 5) {
+            iv.setImageResource(R.drawable.body3);
+            stepNumName.setText("3: Ankle Rotation");
+        } else if (stepChosen == 6) {
+            iv.setImageResource(R.drawable.body4);
+            stepNumName.setText("4: Calf/Forearm, Thigh/Upper Arm");
+        } else if (stepChosen == 7) {
+            iv.setImageResource(R.drawable.body5);
+            stepNumName.setText("5: Chest & Buttock Recharging");
+        } else if (stepChosen == 8) {
+            iv.setImageResource(R.drawable.body6);
+            stepNumName.setText("6: Back Recharging");
+        } else if (stepChosen == 9) {
+            iv.setImageResource(R.drawable.body7);
+            stepNumName.setText("7: Shoulder Rotation");
+        } else if (stepChosen == 10) {
+            iv.setImageResource(R.drawable.body8);
+            stepNumName.setText("8: Throat Recharging");
+        } else if (stepChosen == 11) {
+            iv.setImageResource(R.drawable.body9);
+            stepNumName.setText("9: Neck Recharging");
+        } else if (stepChosen == 12) {
+            iv.setImageResource(R.drawable.body10);
+            stepNumName.setText("10: Neck Rotation");
+        } else if (stepChosen == 13) {
+            iv.setImageResource(R.drawable.body11);
+            stepNumName.setText("11: Spinal Recharging");
+        } else if (stepChosen == 14) {
+            iv.setImageResource(R.drawable.body12);
+            stepNumName.setText("12: Spinal Rotation");
+        } else if (stepChosen == 15) {
+            iv.setImageResource(R.drawable.body13);
+            stepNumName.setText("13: Spinal Stretching");
+        } else if (stepChosen == 16) {
+            iv.setImageResource(R.drawable.body14);
+            stepNumName.setText("14: Spinal Adjustment");
+        } else if (stepChosen == 17) {
+            iv.setImageResource(R.drawable.body15);
+            stepNumName.setText("15: Upper Spinal Twisting");
+        } else if (stepChosen == 18) {
+            iv.setImageResource(R.drawable.body16);
+            stepNumName.setText("16: Skull Tapping");
+        } else if (stepChosen == 19) {
+            iv.setImageResource(R.drawable.body17);
+            stepNumName.setText("17: Scalp Massage");
+        } else if (stepChosen == 20) {
+            iv.setImageResource(R.drawable.body18);
+            stepNumName.setText("18: Medulla Massage");
+        } else if (stepChosen == 21) {
+            iv.setImageResource(R.drawable.body19);
+            stepNumName.setText("19: Biceps Recharging");
+        } else if (stepChosen == 22) {
+            iv.setImageResource(R.drawable.body20);
+            stepNumName.setText("20: 20-Part Body Recharging");
+        } else if (stepChosen == 23) {
+            iv.setImageResource(R.drawable.body21);
+            stepNumName.setText("21: Lifting Weights in Front");
+        } else if (stepChosen == 24) {
+            iv.setImageResource(R.drawable.body22);
+            stepNumName.setText("22: Double Breathing (elbows touching)");
+        } else if (stepChosen == 25) {
+            iv.setImageResource(R.drawable.body23);
+            stepNumName.setText("23: Weight Pulling (from the side)");
+        } else if (stepChosen == 26) {
+            iv.setImageResource(R.drawable.body24);
+            stepNumName.setText("24: Arm Rotation (in small circles)");
+        } else if (stepChosen == 27) {
+            iv.setImageResource(R.drawable.body25);
+            stepNumName.setText("25: Weight Pulling (from the front)");
+        } else if (stepChosen == 28) {
+            iv.setImageResource(R.drawable.body26);
+            stepNumName.setText("26: Finger Recharging");
+        } else if (stepChosen == 29) {
+            iv.setImageResource(R.drawable.body27);
+            stepNumName.setText("27: 4-Part Arm Recharging (with double breathing)");
+        } else if (stepChosen == 30) {
+            iv.setImageResource(R.drawable.body28);
+            stepNumName.setText("28: Single Arm Raising");
+        } else if (stepChosen == 31) {
+            iv.setImageResource(R.drawable.body29);
+            stepNumName.setText("29: Stretching side to side");
+        } else if (stepChosen == 32) {
+            iv.setImageResource(R.drawable.body30);
+            stepNumName.setText("30: Walking in Place");
+        } else if (stepChosen == 33) {
+            iv.setImageResource(R.drawable.body31);
+            stepNumName.setText("31: Running in Place");
+        } else if (stepChosen == 34) {
+            iv.setImageResource(R.drawable.body32);
+            stepNumName.setText("32: Fencing");
+        } else if (stepChosen == 35) {
+            iv.setImageResource(R.drawable.body33);
+            stepNumName.setText("33: Arm Rotation (in large circles)");
+        } else if (stepChosen == 36) {
+            iv.setImageResource(R.drawable.body34);
+            stepNumName.setText("34: Stomach Exercise");
+        } else if (stepChosen == 37) {
+            iv.setImageResource(R.drawable.body35);
+            stepNumName.setText("Double Breathing (palms touching)");
+        } else if (stepChosen == 38) {
+            iv.setImageResource(R.drawable.body36);
+            stepNumName.setText("36: Calf Recharging");
+        } else if (stepChosen == 39) {
+            iv.setImageResource(R.drawable.body37);
+            stepNumName.setText("37: Ankle Rotation");
+        } else if (stepChosen == 40) {
+            iv.setImageResource(R.drawable.body38);
+            stepNumName.setText("38: Hip Recharging");
+        } else if (stepChosen == 41) {
+            iv.setImageResource(R.drawable.body39);
+            stepNumName.setText("39: Double Breathing (without tension)");
         }
         //--- new
-        else if (stepChosen == 1) {
-           // iv.setImageResource(R.drawable.);
-        } else if (stepChosen == 2) {
-          //  iv.setImageResource(R.drawable.);
+        else if (stepChosen == 42) {
+            //aum
+            iv.setImageResource(R.drawable.aum);
+            stepNumName.setText("Namaste");
         }
-        // -- new ended
-        else if (stepChosen == 1) {
-            iv.setImageResource(R.drawable.body1);
-        } else if (stepChosen == 2) {
-            iv.setImageResource(R.drawable.body2);
-        } else if (stepChosen == 3) {
-            iv.setImageResource(R.drawable.body3);
-        } else if (stepChosen == 4) {
-            iv.setImageResource(R.drawable.body4);
-        } else if (stepChosen == 5) {
-            iv.setImageResource(R.drawable.body5);
-        } else if (stepChosen == 6) {
-            iv.setImageResource(R.drawable.body6);
-        } else if (stepChosen == 7) {
-            iv.setImageResource(R.drawable.body7);
-        } else if (stepChosen == 8) {
-            iv.setImageResource(R.drawable.body8);
-        } else if (stepChosen == 9) {
-            iv.setImageResource(R.drawable.body8);
-        } else if (stepChosen == 10) {
-            iv.setImageResource(R.drawable.body10);
-        } else if (stepChosen == 11) {
-            iv.setImageResource(R.drawable.body11);
-        } else if (stepChosen == 12) {
-            iv.setImageResource(R.drawable.body12);
-        } else if (stepChosen == 13) {
-            iv.setImageResource(R.drawable.body13);
-        } else if (stepChosen == 14) {
-            iv.setImageResource(R.drawable.body14);
-        } else if (stepChosen == 15) {
-            iv.setImageResource(R.drawable.body15);
-        } else if (stepChosen == 16) {
-            iv.setImageResource(R.drawable.body16);
-        } else if (stepChosen == 17) {
-            iv.setImageResource(R.drawable.body17);
-        } else if (stepChosen == 18) {
-            iv.setImageResource(R.drawable.body18);
-        } else if (stepChosen == 19) {
-            iv.setImageResource(R.drawable.body19);
-        } else if (stepChosen == 20) {
-            iv.setImageResource(R.drawable.body20);
-        } else if (stepChosen == 21) {
-            iv.setImageResource(R.drawable.body21);
-        } else if (stepChosen == 22) {
-            iv.setImageResource(R.drawable.body22);
-        } else if (stepChosen == 23) {
-            iv.setImageResource(R.drawable.body23);
-        } else if (stepChosen == 24) {
-            iv.setImageResource(R.drawable.body24);
-        } else if (stepChosen == 25) {
-            iv.setImageResource(R.drawable.body25);
-        } else if (stepChosen == 26) {
-            iv.setImageResource(R.drawable.body26);
-        } else if (stepChosen == 27) {
-            iv.setImageResource(R.drawable.body27);
-        } else if (stepChosen == 28) {
-            iv.setImageResource(R.drawable.body28);
-        } else if (stepChosen == 29) {
-            iv.setImageResource(R.drawable.body29);
-        } else if (stepChosen == 30) {
-            iv.setImageResource(R.drawable.body30);
-        } else if (stepChosen == 31) {
-            iv.setImageResource(R.drawable.body31);
-        } else if (stepChosen == 32) {
-            iv.setImageResource(R.drawable.body32);
-        } else if (stepChosen == 33) {
-            iv.setImageResource(R.drawable.body33);
-        } else if (stepChosen == 34) {
-            iv.setImageResource(R.drawable.body34);
-        } else if (stepChosen == 35) {
-            iv.setImageResource(R.drawable.body35);
-        } else if (stepChosen == 36) {
-            iv.setImageResource(R.drawable.body36);
-        } else if (stepChosen == 37) {
-            iv.setImageResource(R.drawable.body37);
-        } else if (stepChosen == 38) {
-            iv.setImageResource(R.drawable.body38);
-        } else if (stepChosen == 39) {
-            iv.setImageResource(R.drawable.body39);
+        else if (stepChosen == 43) {
+            //founder & quote
+            stepNumName.setText("");
+            iv.setImageResource(R.drawable.founder);
         }
+        //--- new ended
     }
 
     public int setStepMusic(int stepChosen,String length){
         int id = -100000;
         if(length=="short") {
-            if (stepChosen == 1) {
-                id = getApplicationContext().getResources().getIdentifier("brief1", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body1);
-            } else if (stepChosen == 2) {
-                id = getApplicationContext().getResources().getIdentifier("brief2", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body2);
-            } else if (stepChosen == 3) {
-                id = getApplicationContext().getResources().getIdentifier("brief3", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body3);
-            } else if (stepChosen == 4) {
-                id = getApplicationContext().getResources().getIdentifier("brief4", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body4);
-            } else if (stepChosen == 5) {
-                id = getApplicationContext().getResources().getIdentifier("brief5", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body5);
-            } else if (stepChosen == 6) {
-                id = getApplicationContext().getResources().getIdentifier("brief6", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body6);
-            } else if (stepChosen == 7) {
-                id = getApplicationContext().getResources().getIdentifier("brief7", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body7);
-            } else if (stepChosen == 8) {
-                id = getApplicationContext().getResources().getIdentifier("brief8", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body8);
-            } else if (stepChosen == 9) {
-                id = getApplicationContext().getResources().getIdentifier("brief9", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body8);
-            } else if (stepChosen == 10) {
-                id = getApplicationContext().getResources().getIdentifier("brief10", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body10);
-            } else if (stepChosen == 11) {
-                id = getApplicationContext().getResources().getIdentifier("brief11", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body11);
-            } else if (stepChosen == 12) {
-                id = getApplicationContext().getResources().getIdentifier("brief12", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body12);
-            } else if (stepChosen == 13) {
-                id = getApplicationContext().getResources().getIdentifier("brief13", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body13);
-            } else if (stepChosen == 14) {
-                id = getApplicationContext().getResources().getIdentifier("brief14", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body14);
-            } else if (stepChosen == 15) {
-                id = getApplicationContext().getResources().getIdentifier("brief15", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body15);
-            } else if (stepChosen == 16) {
-                id = getApplicationContext().getResources().getIdentifier("brief16", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body16);
-            } else if (stepChosen == 17) {
-                id = getApplicationContext().getResources().getIdentifier("brief17", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body17);
-            } else if (stepChosen == 18) {
-                id = getApplicationContext().getResources().getIdentifier("brief18", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body18);
-            } else if (stepChosen == 19) {
-                id = getApplicationContext().getResources().getIdentifier("brief19", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body19);
-            } else if (stepChosen == 20) {
-                id = getApplicationContext().getResources().getIdentifier("brief20", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body20);
-            } else if (stepChosen == 21) {
-                id = getApplicationContext().getResources().getIdentifier("brief21", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body21);
-            } else if (stepChosen == 22) {
-                id = getApplicationContext().getResources().getIdentifier("brief22", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body22);
-            } else if (stepChosen == 23) {
-                id = getApplicationContext().getResources().getIdentifier("brief23", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body23);
-            } else if (stepChosen == 24) {
-                id = getApplicationContext().getResources().getIdentifier("brief24", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body24);
-            } else if (stepChosen == 25) {
-                id = getApplicationContext().getResources().getIdentifier("brief25", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body25);
-            } else if (stepChosen == 26) {
-                id = getApplicationContext().getResources().getIdentifier("brief26", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body26);
-            } else if (stepChosen == 27) {
-                id = getApplicationContext().getResources().getIdentifier("brief27", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body27);
-            } else if (stepChosen == 28) {
-                id = getApplicationContext().getResources().getIdentifier("brief28", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body28);
-            } else if (stepChosen == 29) {
-                id = getApplicationContext().getResources().getIdentifier("brief29", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body29);
-            } else if (stepChosen == 30) {
-                id = getApplicationContext().getResources().getIdentifier("brief31", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body30);
-            } else if (stepChosen == 31) {
-                id = getApplicationContext().getResources().getIdentifier("brief31", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body31);
-            } else if (stepChosen == 32) {
-                id = getApplicationContext().getResources().getIdentifier("brief32", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body32);
-            } else if (stepChosen == 33) {
-                id = getApplicationContext().getResources().getIdentifier("brief33", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body33);
-            } else if (stepChosen == 34) {
-                id = getApplicationContext().getResources().getIdentifier("brief34", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body34);
-            } else if (stepChosen == 35) {
-                id = getApplicationContext().getResources().getIdentifier("brief35", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body35);
-            } else if (stepChosen == 36) {
-                id = getApplicationContext().getResources().getIdentifier("brief36", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body36);
-            } else if (stepChosen == 37) {
-                id = getApplicationContext().getResources().getIdentifier("brief37", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body37);
-            } else if (stepChosen == 38) {
-                id = getApplicationContext().getResources().getIdentifier("brief38", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body38);
-            } else if (stepChosen == 39) {
-                id = getApplicationContext().getResources().getIdentifier("brief39", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body39);
+
+            if (stepChosen == 0) {
+               setPic(stepChosen);//no music, splashscreen
             }
+            //--- new
+            else if (stepChosen == 1) {
+                setPic(stepChosen);//no music, rep instruction
+            }
+            else if (stepChosen == 2) {
+                id = getApplicationContext().getResources().getIdentifier("prayer", "raw", getApplicationContext().getPackageName());
+                setPic(stepChosen); //prayer
+            }
+            //--- new ended
+            else if(stepChosen>2 && stepChosen < 42){
+                String sound = "brief"+(stepChosen-2);
+                Log.i("Simplified code works",sound);
+                id = getApplicationContext().getResources().getIdentifier(sound, "raw", getApplicationContext().getPackageName());
+                setPic(stepChosen);
+            }
+            //--- new
+            else if (stepChosen == 42) {
+                id = getApplicationContext().getResources().getIdentifier("aumamen", "raw", getApplicationContext().getPackageName());
+                setPic(42);
+            }
+            else{
+                setPic(43);//no sound
+            }
+            //--- new ended
         }
         if(length=="long") {
-            if (stepChosen == 1) {
-                id = getApplicationContext().getResources().getIdentifier("detail1", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body1);
-            } else if (stepChosen == 2) {
-                id = getApplicationContext().getResources().getIdentifier("detail2", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body2);
-            } else if (stepChosen == 3) {
-                id = getApplicationContext().getResources().getIdentifier("detail3", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body3);
-            } else if (stepChosen == 4) {
-                id = getApplicationContext().getResources().getIdentifier("detail4", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body4);
-            } else if (stepChosen == 5) {
-                id = getApplicationContext().getResources().getIdentifier("detail5", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body5);
-            } else if (stepChosen == 6) {
-                id = getApplicationContext().getResources().getIdentifier("detail6", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body6);
-            } else if (stepChosen == 7) {
-                id = getApplicationContext().getResources().getIdentifier("detail7", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body7);
-            } else if (stepChosen == 8) {
-                id = getApplicationContext().getResources().getIdentifier("detail8", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body8);
-            } else if (stepChosen == 9) {
-                id = getApplicationContext().getResources().getIdentifier("detail9", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body8);
-            } else if (stepChosen == 10) {
-                id = getApplicationContext().getResources().getIdentifier("detail10", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body10);
-            } else if (stepChosen == 11) {
-                id = getApplicationContext().getResources().getIdentifier("detail11", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body11);
-            } else if (stepChosen == 12) {
-                id = getApplicationContext().getResources().getIdentifier("detail12", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body12);
-            } else if (stepChosen == 13) {
-                id = getApplicationContext().getResources().getIdentifier("detail13", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body13);
-            } else if (stepChosen == 14) {
-                id = getApplicationContext().getResources().getIdentifier("detail14", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body14);
-            } else if (stepChosen == 15) {
-                id = getApplicationContext().getResources().getIdentifier("detail15", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body15);
-            } else if (stepChosen == 16) {
-                id = getApplicationContext().getResources().getIdentifier("detail16", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body16);
-            } else if (stepChosen == 17) {
-                id = getApplicationContext().getResources().getIdentifier("detail17", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body17);
-            } else if (stepChosen == 18) {
-                id = getApplicationContext().getResources().getIdentifier("detail18", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body18);
-            } else if (stepChosen == 19) {
-                id = getApplicationContext().getResources().getIdentifier("detail19", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body19);
-            } else if (stepChosen == 20) {
-                id = getApplicationContext().getResources().getIdentifier("detail20", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body20);
-            } else if (stepChosen == 21) {
-                id = getApplicationContext().getResources().getIdentifier("detail21", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body21);
-            } else if (stepChosen == 22) {
-                id = getApplicationContext().getResources().getIdentifier("detail22", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body22);
-            } else if (stepChosen == 23) {
-                id = getApplicationContext().getResources().getIdentifier("detail23", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body23);
-            } else if (stepChosen == 24) {
-                id = getApplicationContext().getResources().getIdentifier("detail24", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body24);
-            } else if (stepChosen == 25) {
-                id = getApplicationContext().getResources().getIdentifier("detail25", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body25);
-            } else if (stepChosen == 26) {
-                id = getApplicationContext().getResources().getIdentifier("detail26", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body26);
-            } else if (stepChosen == 27) {
-                id = getApplicationContext().getResources().getIdentifier("detail27", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body27);
-            } else if (stepChosen == 28) {
-                id = getApplicationContext().getResources().getIdentifier("detail28", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body28);
-            } else if (stepChosen == 29) {
-                id = getApplicationContext().getResources().getIdentifier("detail29", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body29);
-            } else if (stepChosen == 30) {
-                id = getApplicationContext().getResources().getIdentifier("detail31", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body30);
-            } else if (stepChosen == 31) {
-                id = getApplicationContext().getResources().getIdentifier("detail31", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body31);
-            } else if (stepChosen == 32) {
-                id = getApplicationContext().getResources().getIdentifier("detail32", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body32);
-            } else if (stepChosen == 33) {
-                id = getApplicationContext().getResources().getIdentifier("detail33", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body33);
-            } else if (stepChosen == 34) {
-                id = getApplicationContext().getResources().getIdentifier("detail34", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body34);
-            } else if (stepChosen == 35) {
-                id = getApplicationContext().getResources().getIdentifier("detail35", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body35);
-            } else if (stepChosen == 36) {
-                id = getApplicationContext().getResources().getIdentifier("detail36", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body36);
-            } else if (stepChosen == 37) {
-                id = getApplicationContext().getResources().getIdentifier("detail37", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body37);
-            } else if (stepChosen == 38) {
-                id = getApplicationContext().getResources().getIdentifier("detail38", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body38);
-            } else if (stepChosen == 39) {
-                id = getApplicationContext().getResources().getIdentifier("detail39", "raw", getApplicationContext().getPackageName());
-                iv.setImageResource(R.drawable.body39);
+            if (stepChosen == 0) {
+                setPic(stepChosen);//no music, splashscreen
             }
+            //--- new
+            else if (stepChosen == 1) {
+                setPic(stepChosen);//no music, rep instruction
+            }
+            else if (stepChosen == 2) {
+                id = getApplicationContext().getResources().getIdentifier("prayer", "raw", getApplicationContext().getPackageName());
+                setPic(stepChosen); //prayer
+            }
+            //--- new ended
+            else if(stepChosen>2 && stepChosen < 42){
+                String sound = "detail"+(stepChosen-2);
+                id = getApplicationContext().getResources().getIdentifier(sound, "raw", getApplicationContext().getPackageName());
+                setPic(stepChosen);
+            }
+            //--- new
+            else if (stepChosen == 42) {
+                id = getApplicationContext().getResources().getIdentifier("aumamen", "raw", getApplicationContext().getPackageName());
+                setPic(42);
+            }
+            else{
+                setPic(43);//no sound, founder
+            }
+            //--- new ended
         }
         
         //error checking
-        if (id==-100000){
+        if (id==-100000 && stepChosen!=0 && stepChosen!=1 && stepChosen!=43){
             Toast.makeText(getApplicationContext(),"ERROR: Can't play sound file",
                     Toast.LENGTH_LONG).show();
             Log.e("Music play error","couldn't play sound file");

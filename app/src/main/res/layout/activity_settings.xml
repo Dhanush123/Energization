@@ -40,7 +40,8 @@
         <RadioGroup
             android:id="@+id/radioGroup"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            >
 
         <RadioButton
             android:layout_width="wrap_content"
@@ -50,7 +51,8 @@
             android:checked="false"
             android:layout_below="@+id/audioLength"
             android:layout_alignLeft="@+id/audioLength"
-            android:layout_alignStart="@+id/audioLength" />
+            android:layout_alignStart="@+id/audioLength"
+            android:buttonTint="@color/colorAccent"/>
 
             <RadioButton
             android:layout_width="wrap_content"
@@ -60,17 +62,19 @@
             android:checked="true"
             android:layout_below="@+id/noneAudio"
             android:layout_alignLeft="@+id/noneAudio"
-            android:layout_alignStart="@+id/noneAudio" />
+            android:layout_alignStart="@+id/noneAudio"
+            android:buttonTint="@color/colorAccent"/>
 
             <RadioButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/detailedAudio"
-        android:id="@+id/detailedAudio"
-        android:checked="false"
-        android:layout_below="@+id/radioButton"
-        android:layout_alignLeft="@+id/radioButton"
-        android:layout_alignStart="@+id/radioButton" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/detailedAudio"
+            android:id="@+id/detailedAudio"
+            android:checked="false"
+            android:layout_below="@+id/radioButton"
+            android:layout_alignLeft="@+id/radioButton"
+            android:layout_alignStart="@+id/radioButton"
+            android:buttonTint="@color/colorAccent"/>
 
         </RadioGroup>
     </LinearLayout>
@@ -82,11 +86,9 @@
         android:text="We appreciate your feedback!"
         android:id="@+id/textView"
         android:textSize="25sp"
-        android:layout_below="@+id/radioStuff"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="10sp"
-        android:layout_marginStart="10sp" />
+        android:layout_below="@+id/bufferAmount"
+        android:layout_alignLeft="@+id/audioLength"
+        android:layout_alignStart="@+id/audioLength" />
 
     <Button
         android:layout_width="wrap_content"
@@ -97,6 +99,37 @@
         android:layout_alignLeft="@+id/textView"
         android:layout_alignStart="@+id/textView"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />/>
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Intersong Buffer"
+        android:id="@+id/textView2"
+        android:textSize="25sp"
+        android:layout_below="@+id/radioStuff"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_alignStart="@+id/textView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/bufferAmount"
+        android:textSize="17sp"
+        android:text="@string/bufferAmount"
+        android:layout_toRightOf="@+id/seekBarBuffer"
+        android:layout_toEndOf="@+id/seekBarBuffer"
+        android:layout_below="@+id/textView2" />
+
+    <SeekBar
+        android:id="@+id/seekBarBuffer"
+        android:layout_width="225sp"
+        android:layout_height="wrap_content"
+        android:max="20"
+        android:layout_alignBottom="@+id/bufferAmount"
+        android:layout_alignLeft="@+id/textView2"
+        android:layout_alignStart="@+id/textView2" />
 
 </RelativeLayout>
