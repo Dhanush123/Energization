@@ -105,7 +105,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Intersong Buffer"
+        android:text="Intersong Gap"
         android:id="@+id/textView2"
         android:textSize="25sp"
         android:layout_below="@+id/radioStuff"
@@ -117,7 +117,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/bufferAmount"
-        android:textSize="17sp"
+        android:textSize="15sp"
         android:text="@string/bufferAmount"
         android:layout_toRightOf="@+id/seekBarBuffer"
         android:layout_toEndOf="@+id/seekBarBuffer"
@@ -131,5 +131,16 @@
         android:layout_alignBottom="@+id/bufferAmount"
         android:layout_alignLeft="@+id/textView2"
         android:layout_alignStart="@+id/textView2" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="(seconds)"
+        android:id="@+id/textView3"
+        android:layout_alignBaseline="@+id/textView2"
+        android:layout_alignBottom="@+id/textView2"
+        android:layout_toLeftOf="@+id/bufferAmount"
+        android:layout_toStartOf="@+id/bufferAmount" />
 
 </RelativeLayout>

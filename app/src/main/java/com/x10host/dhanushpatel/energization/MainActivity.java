@@ -22,7 +22,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErrorListener {
 
     ImageButton playButton;
     ImageButton previousButton;
@@ -37,7 +37,10 @@ public class MainActivity extends AppCompatActivity {
     int bufferGot;
     String audioLength;
     int bufferS;
-    static final String RES_PREFIX = "android.resource://com.x10host.dhanushpatel.energization/";
+    int length;
+    int lastStep = -1;
+    String playButtonStatus = "Play Next";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +70,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onError(final MediaPlayer arg0, final int arg1, final int arg2) {
+        // Error handling logic here
+        return true;
+    }
+
+
     public void getAudioLength() {
         final SharedPreferences mSharedPreference = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         audioLengthGot = (mSharedPreference.getString("audiolength", "Brief"));
@@ -82,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void getAndSetBuffer() {
         final SharedPreferences mSharedPreference = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        bufferGot = (mSharedPreference.getInt("buffer",0));
+        bufferGot = (mSharedPreference.getInt("buffer", 0));
         bufferS = bufferGot * 1000;
         if(bufferGot!=0) {
             new CountDownTimer(bufferS, 1000) {
@@ -97,6 +107,9 @@ public class MainActivity extends AppCompatActivity {
                     //mTextField.setText("done!");
                 }
             }.start();
+        }
+        else{
+            mPlayer.start();
         }
     }
 
@@ -145,38 +158,82 @@ public class MainActivity extends AppCompatActivity {
         else {
             getAudioLength();
             if(mPlayer==null) {
+                Log.i("is mPlayer null?",(mPlayer==null)+"");
                 if(audioLength.equals("none")){
-                    Log.i("Button press","only pic display");
                     setPic(step);
+                    playButton.setImageResource(R.drawable.play24);
+                    lastStep = step;
+                    Log.i("Button press", "only pic display");
                 }
                 else{
                     int id = setStepMusic(step, audioLength);
                     if(id!=-100000) {
                         mPlayer = MediaPlayer.create(getApplicationContext(), id);
-                        Log.i("Button press", "music play");
                         mPlayer.start();
+                        nonInitListeners();
+                        playButton.setImageResource(R.drawable.pause24);
+                        lastStep = step;
+                        Log.i("Button press", "music play first time");
                     }
                     else{
                         setPic(step);
+                        lastStep = step;
+                        Log.i("Button press", "only pic display");
                     }
                 }
             }
-            if(mPlayer!=null){
+            else if(mPlayer!=null){
+                Log.i("is mPlayer null?",(mPlayer==null)+"");
                 if(audioLength.equals("none")){
-                    Log.i("Button press","only pic display");
+                    playButton.setImageResource(R.drawable.play24);
                     setPic(step);
+                    lastStep = step;
+                    Log.i("Button press", "only pic display");
                 }
                 else {
-                    mPlayer.stop();
                     int id = setStepMusic(step, audioLength);
+                    //b = true;
                     if(id!=-100000) {
-                        mPlayer = MediaPlayer.create(getApplicationContext(), id);
-                        Log.i("Button press", "music play");
-                        getAndSetBuffer();
+                        if (lastStep!=step) {
+                            mPlayer.stop();
+                            mPlayer = null;
+                            mPlayer = MediaPlayer.create(getApplicationContext(), id);
+                            Log.i("does lastStep!=step ?", (lastStep!=step)+"");
+                            playButton.setImageResource(R.drawable.pause24);
+                            lastStep = step;
+                            getAndSetBuffer();
+                        }
+                        else {
+                            if (mPlayer.isPlaying()) {
+                                length = mPlayer.getCurrentPosition();
+                                if(length!=0) {
+                                    mPlayer.pause();
+                                    playButton.setImageResource(R.drawable.play24);
+                                    Log.i("paused music at", length + "");
+                                }
+                                else{
+                                    mPlayer.stop();
+                                    mPlayer = null;
+                                    mPlayer = MediaPlayer.create(getApplicationContext(), id);
+                                    Log.i("does lastStep!=step ?", (lastStep!=step)+"");
+                                    playButton.setImageResource(R.drawable.pause24);
+                                    lastStep = step;
+                                    getAndSetBuffer();
+                                }
+                            } else if (!mPlayer.isPlaying()) {
+                                mPlayer.seekTo(length);
+                                Log.i("seek to music at", length + "");
+                                playButton.setImageResource(R.drawable.pause24);
+                                getAndSetBuffer();
+                            }
+                        }
+
                     }
-                    else{
+                    else {
                         setPic(step);
                     }
+
+
                 }
             }
         }
@@ -190,7 +247,8 @@ public class MainActivity extends AppCompatActivity {
                 seekBarStep.setProgress(stepSelected);
                 stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
                 startMusic(stepSelected);
-                Log.i("Play music step",""+stepSelected);
+                Log.i("Play step", "" + stepSelected);
+
             }
         });
         previousButton.setOnClickListener(new View.OnClickListener() {
@@ -249,6 +307,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public void nonInitListeners(){
+        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+            public void onCompletion(MediaPlayer mp) {
+                playButton.setImageResource(R.drawable.play24);
+
+            }
+        });
     }
 
     public void setPic(int stepChosen){
@@ -370,7 +438,7 @@ public class MainActivity extends AppCompatActivity {
             stepNumName.setText("34: Stomach Exercise");
         } else if (stepChosen == 37) {
             iv.setImageResource(R.drawable.body35);
-            stepNumName.setText("Double Breathing (palms touching)");
+            stepNumName.setText("35: Double Breathing (palms touching)");
         } else if (stepChosen == 38) {
             iv.setImageResource(R.drawable.body36);
             stepNumName.setText("36: Calf Recharging");
@@ -474,4 +542,12 @@ public class MainActivity extends AppCompatActivity {
         }
         super.onDestroy();
     }
+   public void onStop(){
+        if(mPlayer!=null) {
+            mPlayer.release();
+            mPlayer = null;
+        }
+            super.onStop();
+    }
+
 }
