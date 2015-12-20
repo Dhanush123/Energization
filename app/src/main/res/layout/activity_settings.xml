@@ -24,18 +24,21 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Audio Instruction"
         android:id="@+id/audioLength"
-        android:textSize="25sp"
+        android:textSize="20sp"
         android:layout_below="@+id/toolbar"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginLeft="10sp"
-        android:layout_marginStart="10sp" />
+        android:layout_marginStart="10sp"
+        android:paddingTop="10sp"
+        android:paddingLeft="10sp"/>
     <LinearLayout
         android:id="@+id/radioStuff"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_below="@+id/audioLength">
+        android:layout_below="@+id/audioLength"
+        android:padding="10sp">
 
         <RadioGroup
             android:id="@+id/radioGroup"
@@ -85,10 +88,13 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="We appreciate your feedback!"
         android:id="@+id/textView"
-        android:textSize="25sp"
+        android:textSize="20sp"
         android:layout_below="@+id/bufferAmount"
         android:layout_alignLeft="@+id/audioLength"
-        android:layout_alignStart="@+id/audioLength" />
+        android:layout_alignStart="@+id/audioLength"
+        android:paddingTop="10sp"
+        android:paddingLeft="10sp"
+        android:paddingBottom= "10sp"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -99,18 +105,23 @@
         android:layout_alignLeft="@+id/textView"
         android:layout_alignStart="@+id/textView"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:paddingLeft="10sp"
+        android:paddingRight="10sp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Intersong Gap"
+        android:text="Extra time between exercises"
         android:id="@+id/textView2"
-        android:textSize="25sp"
+        android:textSize="20sp"
         android:layout_below="@+id/radioStuff"
         android:layout_alignLeft="@+id/textView"
-        android:layout_alignStart="@+id/textView" />
+        android:layout_alignStart="@+id/textView"
+        android:paddingTop="10sp"
+        android:paddingLeft="10sp"
+        android:paddingBottom="10sp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -125,12 +136,13 @@
 
     <SeekBar
         android:id="@+id/seekBarBuffer"
-        android:layout_width="225sp"
+        android:layout_width="220sp"
         android:layout_height="wrap_content"
         android:max="20"
         android:layout_alignBottom="@+id/bufferAmount"
         android:layout_alignLeft="@+id/textView2"
-        android:layout_alignStart="@+id/textView2" />
+        android:layout_alignStart="@+id/textView2"
+        android:paddingLeft="10sp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -140,7 +152,8 @@
         android:id="@+id/textView3"
         android:layout_alignBaseline="@+id/textView2"
         android:layout_alignBottom="@+id/textView2"
-        android:layout_toLeftOf="@+id/bufferAmount"
-        android:layout_toStartOf="@+id/bufferAmount" />
+        android:layout_toRightOf="@+id/textView2"
+        android:layout_toEndOf="@+id/textView2"
+        android:paddingLeft="5sp"/>
 
 </RelativeLayout>

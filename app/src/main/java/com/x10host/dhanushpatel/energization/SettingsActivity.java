@@ -67,7 +67,19 @@ public class SettingsActivity extends AppCompatActivity {
         // Enable the Up button
         ab.setDisplayHomeAsUpEnabled(true);
     }
+
+    @Override
     public void onStop(){
+        super.onStop();
+        savePrefs();
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        savePrefs();
+    }
+
+    public void savePrefs(){
         int ID = radioGroup.getCheckedRadioButtonId();
         radioButton = (RadioButton) findViewById(ID);
         String audioLength = (String) radioButton.getText();
@@ -79,7 +91,6 @@ public class SettingsActivity extends AppCompatActivity {
         final SharedPreferences mSharedPreference= PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         String debugging = (mSharedPreference.getString("audiolength","ERROR"));
         Log.i("Current/new audiolength", debugging);
-        super.onStop();
     }
     public void addListeners() {
         feedbackButton.setOnClickListener(new View.OnClickListener() {
@@ -87,10 +98,10 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setType("plain/text");
-                intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "ee-app-support@crystalclarity.com" });
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"ee.android.app@gmail.com"});
                 intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback on Energization app");
                 //intent.putExtra(Intent.EXTRA_TEXT, "mail body");
-                startActivity(Intent.createChooser(intent,""));
+                startActivity(Intent.createChooser(intent, ""));
                 Log.i("Feedback button", "pressed");
             }
         });

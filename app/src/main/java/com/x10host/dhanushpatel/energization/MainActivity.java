@@ -1,5 +1,7 @@
 package com.x10host.dhanushpatel.energization;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
@@ -15,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -39,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
     int bufferS;
     int length;
     int lastStep = -1;
-    String playButtonStatus = "Play Next";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +47,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -104,12 +103,30 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
                 public void onFinish() {
                     Log.i(bufferGot+"s buffering","done");
                     mPlayer.start();
+                    mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @SuppressLint("LongLogTag")
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+                            Log.i("came to music complete - top1", "yes");
+                            playButton.setImageResource(R.drawable.play24);
+
+                        }
+                    });
                     //mTextField.setText("done!");
                 }
             }.start();
         }
         else{
             mPlayer.start();
+            mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @SuppressLint("LongLogTag")
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    Log.i("came to music complete - top2", "yes");
+                    playButton.setImageResource(R.drawable.play24);
+
+                }
+            });
         }
     }
 
@@ -130,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent i = new Intent(this,SettingsActivity.class);
+            i.putExtra("lastPosition",length);
             startActivity(i);
             return true;
         }
@@ -142,20 +160,16 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         return super.onOptionsItemSelected(item);
     }
 
-
-
-    public void onNothingSelected(AdapterView<?> parent) {
-        // Another interface callback
-    }
-
     public void startMusic(int step){
+        setCompletedSets();
+        /**
         if(step < 0){
             Toast.makeText(getApplicationContext(), "Can't seek back more.", Toast.LENGTH_SHORT).show();
         }
         else if(step > 43){
             Toast.makeText(getApplicationContext(), "Can't seek forward more.", Toast.LENGTH_SHORT).show();
         }
-        else {
+         **/
             getAudioLength();
             if(mPlayer==null) {
                 Log.i("is mPlayer null?",(mPlayer==null)+"");
@@ -169,8 +183,18 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
                     int id = setStepMusic(step, audioLength);
                     if(id!=-100000) {
                         mPlayer = MediaPlayer.create(getApplicationContext(), id);
+
                         mPlayer.start();
-                        nonInitListeners();
+                        //getAndSetBuffer();
+
+                        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                            @Override
+                            public void onCompletion(MediaPlayer mp) {
+                                Log.i("came to music complete", " - bottom yes");
+                                playButton.setImageResource(R.drawable.play24);
+
+                            }
+                        });
                         playButton.setImageResource(R.drawable.pause24);
                         lastStep = step;
                         Log.i("Button press", "music play first time");
@@ -231,12 +255,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
                     }
                     else {
                         setPic(step);
+                        mPlayer.stop();
+                        mPlayer = null;
+                        playButton.setImageResource(R.drawable.play24);
                     }
 
 
                 }
             }
-        }
     }
 
     public void addListeners() {
@@ -247,30 +273,43 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
                 seekBarStep.setProgress(stepSelected);
                 stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
                 startMusic(stepSelected);
-                Log.i("Play step", "" + stepSelected);
+                Log.i("Play step index", "" + stepSelected);
 
             }
         });
         previousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                stepSelected--;
-                seekBarStep.setProgress(stepSelected);
-                stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
-                startMusic(stepSelected);
-                Log.i("Play music step",""+stepSelected);
+                int stepP = stepSelected;
+                if(--stepP < 0){
+                        Toast.makeText(getApplicationContext(), "Can't seek back more.", Toast.LENGTH_SHORT).show();
+                    }
+                else {
+                    stepSelected--;
+                    seekBarStep.setProgress(stepSelected);
+                    stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
+                    startMusic(stepSelected);
+                    Log.i("Play music step", "" + stepSelected);
+                }
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                stepSelected++;
-                seekBarStep.setProgress(stepSelected);
-                stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
-                startMusic(stepSelected);
-                Log.i("Play music step",""+stepSelected);
+                int stepN = stepSelected;
+                if(++stepN > 43){
+                    Toast.makeText(getApplicationContext(), "Can't seek forward more.", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    stepSelected++;
+                    seekBarStep.setProgress(stepSelected);
+                    stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
+                    startMusic(stepSelected);
+                    Log.i("Play music step", "" + stepSelected);
+                }
             }
         });
+
         seekBarStep.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBarStep, int progressValue, boolean fromUser) {
@@ -286,6 +325,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
                     nextButton.setVisibility(View.GONE);
                 } else {
                     nextButton.setVisibility(View.VISIBLE);
+                }
+
+                if(stepSelected == 0 || stepSelected == 1 || stepSelected == 43){
+                    playButton.setVisibility(View.GONE);
+                } else {
+                    playButton.setVisibility(View.VISIBLE);
                 }
                 startMusic(stepSelected);
                 // Toast.makeText(getApplicationContext(), "Changing seekbar's progress", Toast.LENGTH_SHORT).show();
@@ -307,16 +352,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             }
         });
 
-    }
-
-    public void nonInitListeners(){
-        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-
-            public void onCompletion(MediaPlayer mp) {
-                playButton.setImageResource(R.drawable.play24);
-
-            }
-        });
     }
 
     public void setPic(int stepChosen){
@@ -456,7 +491,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         else if (stepChosen == 42) {
             //aum
             iv.setImageResource(R.drawable.aum);
-            stepNumName.setText("Namaste");
+            stepNumName.setText("Namaste"+"\nNumber of sets complete: "+getCompletedSets());
         }
         else if (stepChosen == 43) {
             //founder & quote
@@ -531,23 +566,73 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         if (id==-100000 && stepChosen!=0 && stepChosen!=1 && stepChosen!=43){
             Toast.makeText(getApplicationContext(),"ERROR: Can't play sound file",
                     Toast.LENGTH_LONG).show();
-            Log.e("Music play error","couldn't play sound file");
+            Log.e("Music play error", "couldn't play sound file");
         }
         return id;
     }
-
+    @Override
     public void onDestroy() {
         if(mPlayer!=null) {
             mPlayer.stop();
         }
         super.onDestroy();
     }
-   public void onStop(){
+    @Override
+    public void onStop(){
         if(mPlayer!=null) {
             mPlayer.release();
             mPlayer = null;
         }
             super.onStop();
+    }
+    public void onPause(){
+        SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putInt("step", stepSelected);
+        editor.commit();
+        //will be executed onPause
+        Log.i("went to onPause","");
+        super.onPause();
+    }
+
+    public void setCompletedSets(){
+        int currentSteps = getCompletedSteps();
+        if(currentSteps<40){
+            SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp.edit();
+            currentSteps++;
+            editor.putInt("currentSteps", currentSteps);
+            editor.commit();
+        }
+        else if(currentSteps==40){
+            SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp.edit();
+            int currentSets = getCompletedSets();
+            currentSets++;
+            editor.putInt("currentSets", currentSets);
+            editor.putInt("currentSteps",0);
+            editor.commit();
+        }
+    }
+    public int getCompletedSets(){
+        SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
+        return sp.getInt("currentSets",0);
+    }
+    public int getCompletedSteps(){
+        SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
+        return sp.getInt("currentSteps",0);
+    }
+
+    @Override
+    public void onResume(){
+        SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
+        stepSelected = sp.getInt("step",0);
+        seekBarStep.setProgress(stepSelected);
+        stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
+        startMusic(stepSelected);
+        Log.i("Resumed play step index", "" + stepSelected);
+        //will be executed onResume
+        super.onResume();
     }
 
 }
