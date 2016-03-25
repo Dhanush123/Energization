@@ -4,15 +4,15 @@
     tools:context=".MainActivity">
 
     <item android:id="@+id/action_info"
-        android:icon="@drawable/info24"
+        android:icon="@drawable/infoicon"
         android:title="@string/action_info"
         app:showAsAction="always"
-        android:orderInCategory="1"
-        android:menuCategory="secondary"/>
+        android:orderInCategory="1" />
 
     <item
         android:id="@+id/action_settings"
-        android:orderInCategory="102"
+        android:icon="@drawable/settingsicon"
+        android:orderInCategory="2"
         android:title="@string/action_settings"
-        app:showAsAction="never" />
+        app:showAsAction="always" />
 </menu>

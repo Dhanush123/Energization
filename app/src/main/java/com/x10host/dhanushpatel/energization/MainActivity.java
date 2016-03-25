@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -33,13 +34,13 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
     TextView stepNumName;
     ImageView iv;
     SeekBar seekBarStep;
-    int stepSelected;
+    int stepSelected = 0;
     String audioLengthGot;
     int bufferGot;
     String audioLength;
     int bufferS;
     int length;
-    int lastStep = -1;
+    int lastStep = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setTitleTextColor(Color.WHITE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -60,13 +62,19 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         seekBarStep = (SeekBar) findViewById(R.id.seekBarStep);
         stepShow = (TextView) findViewById(R.id.stepID);
         stepNumName = (TextView) findViewById(R.id.step);
-        iv.setImageResource(R.drawable.splashscreen);
+       // iv.setImageResource(R.drawable.splashscreen);
 
         seekBarStep.getProgressDrawable().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         seekBarStep.getThumb().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
 
         addListeners();
 
+        if(stepSelected==0) {
+            stepSelected+=2;
+            seekBarStep.setProgress(stepSelected);
+            stepShow.setText("Selected: " + stepSelected + " of " + seekBarStep.getMax());
+            startMusic(stepSelected);
+        }
     }
 
     @Override
@@ -74,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         // Error handling logic here
         return true;
     }
-
 
     public void getAudioLength() {
         final SharedPreferences mSharedPreference = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -144,7 +151,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent i = new Intent(this,SettingsActivity.class);
             i.putExtra("lastPosition",length);
@@ -172,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
          **/
             getAudioLength();
             if(mPlayer==null) {
-                Log.i("is mPlayer null?",(mPlayer==null)+"");
+                Log.i("is mPlayer null?", (mPlayer == null) + "");
                 if(audioLength.equals("none")){
                     setPic(step);
                     playButton.setImageResource(R.drawable.play24);
@@ -207,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
                 }
             }
             else if(mPlayer!=null){
-                Log.i("is mPlayer null?",(mPlayer==null)+"");
+                Log.i("is mPlayer null?", (mPlayer == null) + "");
                 if(audioLength.equals("none")){
                     playButton.setImageResource(R.drawable.play24);
                     setPic(step);
@@ -271,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             @Override
             public void onClick(View view) {
                 seekBarStep.setProgress(stepSelected);
-                stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
+                stepShow.setText("Selected: " + stepSelected + " of " + seekBarStep.getMax());
                 startMusic(stepSelected);
                 Log.i("Play step index", "" + stepSelected);
 
@@ -281,15 +287,20 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             @Override
             public void onClick(View view) {
                 int stepP = stepSelected;
-                if(--stepP < 0){
+                if(--stepP < 1){
                         Toast.makeText(getApplicationContext(), "Can't seek back more.", Toast.LENGTH_SHORT).show();
                     }
                 else {
-                    stepSelected--;
-                    seekBarStep.setProgress(stepSelected);
-                    stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
-                    startMusic(stepSelected);
-                    Log.i("Play music step", "" + stepSelected);
+                    if(stepP==1){
+                        startActivity(new Intent(getApplicationContext(),InstructionsActivity.class));
+                    }
+                    else {
+                        stepSelected--;
+                        seekBarStep.setProgress(stepSelected);
+                        stepShow.setText("Selected: " + stepSelected + " of " + seekBarStep.getMax());
+                        startMusic(stepSelected);
+                        Log.i("Play music step", "" + stepSelected);
+                    }
                 }
             }
         });
@@ -297,13 +308,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             @Override
             public void onClick(View view) {
                 int stepN = stepSelected;
-                if(++stepN > 43){
+                if (++stepN > 43) {
                     Toast.makeText(getApplicationContext(), "Can't seek forward more.", Toast.LENGTH_SHORT).show();
-                }
-                else {
+                } else {
                     stepSelected++;
                     seekBarStep.setProgress(stepSelected);
-                    stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
+                    stepShow.setText("Selected: " + stepSelected + " of " + seekBarStep.getMax());
                     startMusic(stepSelected);
                     Log.i("Play music step", "" + stepSelected);
                 }
@@ -315,11 +325,16 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             public void onProgressChanged(SeekBar seekBarStep, int progressValue, boolean fromUser) {
                 stepSelected = progressValue;
                 seekBarStep.setProgress(stepSelected);
-                if (stepSelected == 0) {
+                if (stepSelected < 2) {
+                    if (stepSelected == 0) {
+                        stepSelected = ++progressValue;
+                    }
                     previousButton.setVisibility(View.GONE);
+                    startActivity(new Intent(getApplicationContext(), InstructionsActivity.class));
                 } else {
                     previousButton.setVisibility(View.VISIBLE);
                 }
+
 
                 if (stepSelected == 43) {
                     nextButton.setVisibility(View.GONE);
@@ -327,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
                     nextButton.setVisibility(View.VISIBLE);
                 }
 
-                if(stepSelected == 0 || stepSelected == 1 || stepSelected == 43){
+                if (stepSelected == 0 || stepSelected == 1 || stepSelected == 43) {
                     playButton.setVisibility(View.GONE);
                 } else {
                     playButton.setVisibility(View.VISIBLE);
@@ -346,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
                 if (stepSelected > 43) {
                     stepSelected = 43;
                 }
-                stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
+                stepShow.setText("Selected: " + stepSelected + " of " + seekBarStep.getMax());
                 // textView.setText("Covered: " + progress + "/" + seekBarStep.getMax());
                 // Toast.makeText(getApplicationContext(), "Stopped tracking seekbar", Toast.LENGTH_SHORT).show();
             }
@@ -355,20 +370,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
     }
 
     public void setPic(int stepChosen){
-        if (stepChosen == 0) {
-            iv.setImageResource(R.drawable.splashscreen);
-            stepNumName.setText("");
-        }
-        else if (stepChosen == 1) {
-            //num reps instruction
-            stepNumName.setText("");
-            iv.setImageResource(R.drawable.instruction);
-        } else if (stepChosen == 2) {
+        //boolean showedIntro = getIntent().getBooleanExtra("showedIntro",true);
+        if (stepChosen == 2) {
             //prayer
             stepNumName.setText("Begin with this prayer");
             iv.setImageResource(R.drawable.prayer);
-        }
-        else if (stepChosen == 3) {
+        } else if (stepChosen == 3) {
             //first actual exercise
             iv.setImageResource(R.drawable.body1);
             stepNumName.setText("1: Double Breathing (palms touching)");
@@ -505,14 +512,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         int id = -100000;
         if(length=="short") {
 
-            if (stepChosen == 0) {
-               setPic(stepChosen);//no music, splashscreen
-            }
-            //--- new
-            else if (stepChosen == 1) {
-                setPic(stepChosen);//no music, rep instruction
-            }
-            else if (stepChosen == 2) {
+            if (stepChosen == 2) {
                 id = getApplicationContext().getResources().getIdentifier("prayer", "raw", getApplicationContext().getPackageName());
                 setPic(stepChosen); //prayer
             }
@@ -534,14 +534,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             //--- new ended
         }
         if(length=="long") {
-            if (stepChosen == 0) {
-                setPic(stepChosen);//no music, splashscreen
-            }
-            //--- new
-            else if (stepChosen == 1) {
-                setPic(stepChosen);//no music, rep instruction
-            }
-            else if (stepChosen == 2) {
+            if (stepChosen == 2) {
                 id = getApplicationContext().getResources().getIdentifier("prayer", "raw", getApplicationContext().getPackageName());
                 setPic(stepChosen); //prayer
             }
@@ -614,6 +607,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             editor.commit();
         }
     }
+
     public int getCompletedSets(){
         SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
         return sp.getInt("currentSets",0);
@@ -628,7 +622,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
         stepSelected = sp.getInt("step",0);
         seekBarStep.setProgress(stepSelected);
-        stepShow.setText("Selected: " + stepSelected + "/" + seekBarStep.getMax());
+        stepShow.setText("Selected: " + stepSelected + " / " + seekBarStep.getMax());
         startMusic(stepSelected);
         Log.i("Resumed play step index", "" + stepSelected);
         //will be executed onResume
