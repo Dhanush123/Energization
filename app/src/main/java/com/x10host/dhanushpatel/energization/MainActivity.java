@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         seekBarStep = (SeekBar) findViewById(R.id.seekBarStep);
         stepShow = (TextView) findViewById(R.id.stepID);
         stepNumName = (TextView) findViewById(R.id.step);
-       // iv.setImageResource(R.drawable.splashscreen);
+        // iv.setImageResource(R.drawable.splashscreen);
 
         seekBarStep.getProgressDrawable().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         seekBarStep.getThumb().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
@@ -169,106 +169,106 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
     public void startMusic(int step){
         setCompletedSets();
         /**
-        if(step < 0){
-            Toast.makeText(getApplicationContext(), "Can't seek back more.", Toast.LENGTH_SHORT).show();
-        }
-        else if(step > 43){
-            Toast.makeText(getApplicationContext(), "Can't seek forward more.", Toast.LENGTH_SHORT).show();
-        }
+         if(step < 0){
+         Toast.makeText(getApplicationContext(), "Can't seek back more.", Toast.LENGTH_SHORT).show();
+         }
+         else if(step > 43){
+         Toast.makeText(getApplicationContext(), "Can't seek forward more.", Toast.LENGTH_SHORT).show();
+         }
          **/
-            getAudioLength();
-            if(mPlayer==null) {
-                Log.i("is mPlayer null?", (mPlayer == null) + "");
-                if(audioLength.equals("none")){
-                    setPic(step);
-                    playButton.setImageResource(R.drawable.play24);
+        getAudioLength();
+        if(mPlayer==null) {
+            Log.i("is mPlayer null?", (mPlayer == null) + "");
+            if(audioLength.equals("none")){
+                setPic(step);
+                playButton.setImageResource(R.drawable.play24);
+                lastStep = step;
+                Log.i("Button press", "only pic display");
+            }
+            else{
+                int id = setStepMusic(step, audioLength);
+                if(id!=-100000) {
+                    mPlayer = MediaPlayer.create(getApplicationContext(), id);
+
+                    mPlayer.start();
+                    //getAndSetBuffer();
+
+                    mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+                            Log.i("came to music complete", " - bottom yes");
+                            playButton.setImageResource(R.drawable.play24);
+
+                        }
+                    });
+                    playButton.setImageResource(R.drawable.pause24);
                     lastStep = step;
-                    Log.i("Button press", "only pic display");
+                    Log.i("Button press", "music play first time");
                 }
                 else{
-                    int id = setStepMusic(step, audioLength);
-                    if(id!=-100000) {
-                        mPlayer = MediaPlayer.create(getApplicationContext(), id);
-
-                        mPlayer.start();
-                        //getAndSetBuffer();
-
-                        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                            @Override
-                            public void onCompletion(MediaPlayer mp) {
-                                Log.i("came to music complete", " - bottom yes");
-                                playButton.setImageResource(R.drawable.play24);
-
-                            }
-                        });
-                        playButton.setImageResource(R.drawable.pause24);
-                        lastStep = step;
-                        Log.i("Button press", "music play first time");
-                    }
-                    else{
-                        setPic(step);
-                        lastStep = step;
-                        Log.i("Button press", "only pic display");
-                    }
-                }
-            }
-            else if(mPlayer!=null){
-                Log.i("is mPlayer null?", (mPlayer == null) + "");
-                if(audioLength.equals("none")){
-                    playButton.setImageResource(R.drawable.play24);
                     setPic(step);
                     lastStep = step;
                     Log.i("Button press", "only pic display");
                 }
-                else {
-                    int id = setStepMusic(step, audioLength);
-                    //b = true;
-                    if(id!=-100000) {
-                        if (lastStep!=step) {
-                            mPlayer.stop();
-                            mPlayer = null;
-                            mPlayer = MediaPlayer.create(getApplicationContext(), id);
-                            Log.i("does lastStep!=step ?", (lastStep!=step)+"");
-                            playButton.setImageResource(R.drawable.pause24);
-                            lastStep = step;
-                            getAndSetBuffer();
-                        }
-                        else {
-                            if (mPlayer.isPlaying()) {
-                                length = mPlayer.getCurrentPosition();
-                                if(length!=0) {
-                                    mPlayer.pause();
-                                    playButton.setImageResource(R.drawable.play24);
-                                    Log.i("paused music at", length + "");
-                                }
-                                else{
-                                    mPlayer.stop();
-                                    mPlayer = null;
-                                    mPlayer = MediaPlayer.create(getApplicationContext(), id);
-                                    Log.i("does lastStep!=step ?", (lastStep!=step)+"");
-                                    playButton.setImageResource(R.drawable.pause24);
-                                    lastStep = step;
-                                    getAndSetBuffer();
-                                }
-                            } else if (!mPlayer.isPlaying()) {
-                                mPlayer.seekTo(length);
-                                Log.i("seek to music at", length + "");
-                                playButton.setImageResource(R.drawable.pause24);
-                                getAndSetBuffer();
-                            }
-                        }
-
-                    }
-                    else {
-                        setPic(step);
+            }
+        }
+        else if(mPlayer!=null){
+            Log.i("is mPlayer null?", (mPlayer == null) + "");
+            if(audioLength.equals("none")){
+                playButton.setImageResource(R.drawable.play24);
+                setPic(step);
+                lastStep = step;
+                Log.i("Button press", "only pic display");
+            }
+            else {
+                int id = setStepMusic(step, audioLength);
+                //b = true;
+                if(id!=-100000) {
+                    if (lastStep!=step) {
                         mPlayer.stop();
                         mPlayer = null;
-                        playButton.setImageResource(R.drawable.play24);
+                        mPlayer = MediaPlayer.create(getApplicationContext(), id);
+                        Log.i("does lastStep!=step ?", (lastStep!=step)+"");
+                        playButton.setImageResource(R.drawable.pause24);
+                        lastStep = step;
+                        getAndSetBuffer();
+                    }
+                    else {
+                        if (mPlayer.isPlaying()) {
+                            length = mPlayer.getCurrentPosition();
+                            if(length!=0) {
+                                mPlayer.pause();
+                                playButton.setImageResource(R.drawable.play24);
+                                Log.i("paused music at", length + "");
+                            }
+                            else{
+                                mPlayer.stop();
+                                mPlayer = null;
+                                mPlayer = MediaPlayer.create(getApplicationContext(), id);
+                                Log.i("does lastStep!=step ?", (lastStep!=step)+"");
+                                playButton.setImageResource(R.drawable.pause24);
+                                lastStep = step;
+                                getAndSetBuffer();
+                            }
+                        } else if (!mPlayer.isPlaying()) {
+                            mPlayer.seekTo(length);
+                            Log.i("seek to music at", length + "");
+                            playButton.setImageResource(R.drawable.pause24);
+                            getAndSetBuffer();
+                        }
                     }
 
-
                 }
+                else {
+                    setPic(step);
+                    mPlayer.stop();
+                    mPlayer = null;
+                    playButton.setImageResource(R.drawable.play24);
+                }
+
+
             }
+        }
     }
 
     public void addListeners() {
@@ -288,8 +288,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             public void onClick(View view) {
                 int stepP = stepSelected;
                 if(--stepP < 1){
-                        Toast.makeText(getApplicationContext(), "Can't seek back more.", Toast.LENGTH_SHORT).show();
-                    }
+                    Toast.makeText(getApplicationContext(), "Can't seek back more.", Toast.LENGTH_SHORT).show();
+                }
                 else {
                     if(stepP==1){
                         startActivity(new Intent(getApplicationContext(),InstructionsActivity.class));
@@ -554,7 +554,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             }
             //--- new ended
         }
-        
+
         //error checking
         if (id==-100000 && stepChosen!=0 && stepChosen!=1 && stepChosen!=43){
             Toast.makeText(getApplicationContext(),"ERROR: Can't play sound file",
@@ -576,7 +576,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             mPlayer.release();
             mPlayer = null;
         }
-            super.onStop();
+        super.onStop();
     }
     public void onPause(){
         SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
