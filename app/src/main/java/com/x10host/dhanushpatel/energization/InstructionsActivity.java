@@ -1,6 +1,8 @@
 package com.x10host.dhanushpatel.energization;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -57,8 +59,8 @@ public class InstructionsActivity extends AppCompatActivity {
         FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.fab);
         myFab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Log.i("Going to main class now","");
-                Intent i = new Intent(getApplicationContext(),MainActivity.class);
+                Log.i("Going to","beginprayer activity now");
+                Intent i = new Intent(InstructionsActivity.this,BeginPrayerActivity.class);
                 startActivity(i);
             }
         });
@@ -91,6 +93,16 @@ public class InstructionsActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onPause(){
+        SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putInt("step",3);
+        editor.commit();
+        //will be executed onPause
+        Log.i("went to onPause","");
+        super.onPause();
     }
 
 }

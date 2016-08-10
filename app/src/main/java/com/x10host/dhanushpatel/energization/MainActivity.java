@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         addListeners();
 
         if(stepSelected==0) {
-            stepSelected+=2;
+            stepSelected+=3;
             seekBarStep.setProgress(stepSelected);
             stepShow.setText("Selected: " + stepSelected + " of " + seekBarStep.getMax());
             startMusic(stepSelected);
@@ -373,8 +373,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         //boolean showedIntro = getIntent().getBooleanExtra("showedIntro",true);
         if (stepChosen == 2) {
             //prayer
-            stepNumName.setText("Begin with this prayer");
-            iv.setImageResource(R.drawable.prayer);
+            startActivity(new Intent(this,BeginPrayerActivity.class));
         } else if (stepChosen == 3) {
             //first actual exercise
             iv.setImageResource(R.drawable.body1);
@@ -513,8 +512,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         if(length=="short") {
 
             if (stepChosen == 2) {
-                id = getApplicationContext().getResources().getIdentifier("prayer", "raw", getApplicationContext().getPackageName());
-                setPic(stepChosen); //prayer
+                //do nothing now because prayer moved to new class
+
+//                id = getApplicationContext().getResources().getIdentifier("prayer", "raw", getApplicationContext().getPackageName());
+//                setPic(stepChosen); //prayer
             }
             //--- new ended
             else if(stepChosen>2 && stepChosen < 42){
@@ -535,8 +536,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         }
         if(length=="long") {
             if (stepChosen == 2) {
-                id = getApplicationContext().getResources().getIdentifier("prayer", "raw", getApplicationContext().getPackageName());
-                setPic(stepChosen); //prayer
+                //do nothing since code move to new activity
+
+//                id = getApplicationContext().getResources().getIdentifier("prayer", "raw", getApplicationContext().getPackageName());
+//                setPic(stepChosen); //prayer
             }
             //--- new ended
             else if(stepChosen>2 && stepChosen < 42){
@@ -620,7 +623,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
     @Override
     public void onResume(){
         SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
-        stepSelected = sp.getInt("step",0);
+        stepSelected = sp.getInt("step",3);
         seekBarStep.setProgress(stepSelected);
         stepShow.setText("Selected: " + stepSelected + " / " + seekBarStep.getMax());
         startMusic(stepSelected);
