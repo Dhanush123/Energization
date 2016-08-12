@@ -120,71 +120,6 @@ public class BeginPrayerActivity extends AppCompatActivity implements MediaPlaye
         Log.i("audiolength use"," in BeginPrayer "+ audioLength);
     }
 
-//    public void startMusic(){
-//        getAudioLength();
-//        if(mPlayer==null) {
-//            Log.i("is mPlayer null?", (mPlayer == null) + "");
-//            if(audioLength.equals("none")){
-//                playButton.setImageResource(R.drawable.play24);
-//            }
-//            else{
-//                int id = setStepMusic(audioLength);
-//                if(id!=-100000) {
-//                    mPlayer = MediaPlayer.create(getApplicationContext(), id);
-//
-//                    mPlayer.start();
-//
-//                    mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-//                        @Override
-//                        public void onCompletion(MediaPlayer mp) {
-//                            Log.i("came to music complete", " - bottom yes");
-//                            playButton.setImageResource(R.drawable.play24);
-//
-//                        }
-//                    });
-//                    playButton.setImageResource(R.drawable.pause24);
-//                    Log.i("Button press", "music play first time");
-//                }
-//            }
-//        }
-//        else if(mPlayer!=null){
-//            Log.i("is mPlayer null?", (mPlayer == null) + "");
-//            if(audioLength.equals("none")){
-//                //do nothing
-//            }
-//            else {
-//                int id = setStepMusic(audioLength);
-//                if(id!=-100000) {
-//
-//                        if (mPlayer.isPlaying()) {
-//                            length = mPlayer.getCurrentPosition();
-//                            if(length!=0) {
-//                                mPlayer.pause();
-//                                playButton.setImageResource(R.drawable.play24);
-//                                Log.i("paused music at", length + "");
-//                            }
-//                            else{
-//                                mPlayer.stop();
-//                                mPlayer = null;
-//                                mPlayer = MediaPlayer.create(getApplicationContext(), id);
-//                                playButton.setImageResource(R.drawable.pause24);
-//                            }
-//                        } else if (!mPlayer.isPlaying()) {
-//                            mPlayer.seekTo(length);
-//                            Log.i("seek to music at", length + "");
-//                            playButton.setImageResource(R.drawable.pause24);
-//                        }
-//
-//                }
-//                else {
-//                    mPlayer.stop();
-//                    mPlayer = null;
-//                    playButton.setImageResource(R.drawable.play24);
-//                }
-//            }
-//        }
-//    }
-
     public void startMusic(){
         getAudioLength();
 
@@ -192,7 +127,6 @@ public class BeginPrayerActivity extends AppCompatActivity implements MediaPlaye
             Log.i("is mPlayer null?", (mPlayer == null) + "");
             if(audioLength.equals("none")){
                 playButton.setImageResource(R.drawable.play24);
-//                lastStep = step;
                 Log.i("Button press", "only pic display");
             }
             else{
@@ -203,12 +137,7 @@ public class BeginPrayerActivity extends AppCompatActivity implements MediaPlaye
                     playerStart();
 
                     playButton.setImageResource(R.drawable.pause24);
-//                    lastStep = step;
                     Log.i("Button press", "music play first time");
-                }
-                else{
-//                    lastStep = step;
-//                    Log.i("Button press", "only pic display");
                 }
             }
         }
@@ -216,23 +145,12 @@ public class BeginPrayerActivity extends AppCompatActivity implements MediaPlaye
             Log.i("is mPlayer null?", (mPlayer == null) + "");
             if(audioLength.equals("none")){
                 playButton.setImageResource(R.drawable.play24);
-//                lastStep = step;
                 Log.i("Button press", "only pic display");
             }
             else {
                 Log.i("audiolength is","not none");
                 int id = setStepMusic(audioLength);
-                //b = true;
                 if(id!=-100000) {
-//                    if (lastStep!=step) {
-//                        mPlayer.stop();
-//                        mPlayer = null;
-//                        mPlayer = MediaPlayer.create(getApplicationContext(), id);
-//                        Log.i("does lastStep!=step ?", (lastStep!=step)+"");
-//                        playButton.setImageResource(R.drawable.pause24);
-////                        lastStep = step;
-//                    }
-//                    else {
                         if (mPlayer.isPlaying()) {
                             length = mPlayer.getCurrentPosition();
                             if(length!=0) {
@@ -246,7 +164,6 @@ public class BeginPrayerActivity extends AppCompatActivity implements MediaPlaye
                                 mPlayer = MediaPlayer.create(getApplicationContext(), id);
                                 Log.i("does lastStep!=step ?", (lastStep!=step)+"");
                                 playButton.setImageResource(R.drawable.pause24);
-//                                lastStep = step;
                                 playerStart();
                             }
                         } else if (!mPlayer.isPlaying()) {
@@ -256,8 +173,6 @@ public class BeginPrayerActivity extends AppCompatActivity implements MediaPlaye
 
                             playerStart();
                         }
-//                    }
-
                 }
                 else {
                     mPlayer.stop();

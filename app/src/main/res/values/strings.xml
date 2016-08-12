@@ -19,5 +19,7 @@
     <string name="bufferAmount">Selected /</string>
     <string name="introQuote">\"The greater the will, the greater the flow of energy.\"</string>
     <string name="introSentences">As taught by Paramhansa Yogananda. Written by Swami Kriyananda in the <i> Ananda Course in Self-Realization. </i> </string>
+    <string name="resultsCaption">You are one step closer to Self-realization!</string>
+    <string name="setsCompleteText">Number of sets complete:</string>
 
 </resources>

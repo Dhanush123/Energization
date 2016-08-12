@@ -168,14 +168,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
 
     public void startMusic(int step){
         setCompletedSets();
-        /**
-         if(step < 0){
-         Toast.makeText(getApplicationContext(), "Can't seek back more.", Toast.LENGTH_SHORT).show();
-         }
-         else if(step > 43){
-         Toast.makeText(getApplicationContext(), "Can't seek forward more.", Toast.LENGTH_SHORT).show();
-         }
-         **/
         getAudioLength();
         if(mPlayer==null) {
             Log.i("is mPlayer null?", (mPlayer == null) + "");
@@ -309,7 +301,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             @Override
             public void onClick(View view) {
                 int stepN = stepSelected;
-                if (++stepN > 43) {
+                if(stepN==42){
+                    startActivity(new Intent(getApplicationContext(),ResultsActivity.class));
+                }
+                else if (++stepN > 43) {
                     Toast.makeText(getApplicationContext(), "Can't seek forward more.", Toast.LENGTH_SHORT).show();
                 } else {
                     stepSelected++;
@@ -496,9 +491,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         }
         //--- new
         else if (stepChosen == 42) {
-            //aum
-            iv.setImageResource(R.drawable.aum);
-            stepNumName.setText("Namaste"+"\nNumber of sets complete: "+getCompletedSets());
+            startActivity(new Intent(this,ResultsActivity.class));
+//            //aum
+//            iv.setImageResource(R.drawable.aum);
+//            stepNumName.setText("Namaste"+"\nNumber of sets complete: "+getCompletedSets());
         }
         else if (stepChosen == 43) {
             //founder & quote
@@ -527,8 +523,11 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             }
             //--- new
             else if (stepChosen == 42) {
-                id = getApplicationContext().getResources().getIdentifier("aumamen", "raw", getApplicationContext().getPackageName());
-                setPic(42);
+
+                //moving to new class
+
+//                id = getApplicationContext().getResources().getIdentifier("aumamen", "raw", getApplicationContext().getPackageName());
+//                setPic(42);
             }
             else{
                 setPic(43);//no sound
@@ -550,8 +549,11 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             }
             //--- new
             else if (stepChosen == 42) {
-                id = getApplicationContext().getResources().getIdentifier("aumamen", "raw", getApplicationContext().getPackageName());
-                setPic(42);
+
+                //do nothing, code in new activity
+
+//                id = getApplicationContext().getResources().getIdentifier("aumamen", "raw", getApplicationContext().getPackageName());
+//                setPic(42);
             }
             else{
                 setPic(43);//no sound, founder
@@ -560,7 +562,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         }
 
         //error checking
-        if (id==-100000 && stepChosen!=0 && stepChosen!=1 && stepChosen!=43){
+        if (id==-100000 && stepChosen!=0 && stepChosen!=1 && stepChosen!=2 && stepChosen!=43){
             Toast.makeText(getApplicationContext(),"ERROR: Can't play sound file",
                     Toast.LENGTH_LONG).show();
             Log.e("Music play error", "couldn't play sound file");
@@ -592,7 +594,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         super.onPause();
     }
 
-    public void setCompletedSets(){
+    private void setCompletedSets(){
         int currentSteps = getCompletedSteps();
         if(currentSteps<40){
             SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
@@ -609,14 +611,22 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             editor.putInt("currentSets", currentSets);
             editor.putInt("currentSteps",0);
             editor.commit();
+
+            //----- patch-like code so that resultsactivity can access numSets. didn't think of accessing sets & steps in other activities when initially designing
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor2 = prefs.edit();
+            editor2.putInt("numSets", currentSets);
+            editor2.commit();
+            //-----
         }
     }
 
-    public int getCompletedSets(){
+    private int getCompletedSets(){
         SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
-        return sp.getInt("currentSets",0);
+        int numSets = sp.getInt("currentSets",0);
+        return numSets;
     }
-    public int getCompletedSteps(){
+    private int getCompletedSteps(){
         SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
         return sp.getInt("currentSteps",0);
     }
