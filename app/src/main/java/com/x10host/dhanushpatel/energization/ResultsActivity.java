@@ -67,9 +67,9 @@ public class ResultsActivity extends AppCompatActivity implements MediaPlayer.On
         FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.fab);
         myFab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Log.i("Going to","main activity now");
-                //Intent i = new Intent(ResultsActivity.this,FinishScreen.class);
-                //startActivity(i);
+                Log.i("Going to","final activity now");
+                Intent i = new Intent(ResultsActivity.this,FinalActivity.class);
+                startActivity(i);
             }
         });
     }
@@ -128,8 +128,8 @@ public class ResultsActivity extends AppCompatActivity implements MediaPlayer.On
         if(mPlayer==null) {
             Log.i("is mPlayer null?", (mPlayer == null) + "");
             if(audioLength.equals("none")){
-                playButton.setImageResource(R.drawable.play24);
-                Log.i("Button press", "only pic display");
+//                playButton.setImageResource(R.drawable.play24);
+//                Log.i("Button press", "only pic display");
             }
             else{
                 int id = setStepMusic(audioLength);
@@ -138,7 +138,7 @@ public class ResultsActivity extends AppCompatActivity implements MediaPlayer.On
 
                     playerStart();
 
-                    playButton.setImageResource(R.drawable.pause24);
+//                    playButton.setImageResource(R.drawable.pause24);
                     Log.i("Button press", "music play first time");
                 }
             }
@@ -146,7 +146,7 @@ public class ResultsActivity extends AppCompatActivity implements MediaPlayer.On
         else if(mPlayer!=null){
             Log.i("is mPlayer null?", (mPlayer == null) + "");
             if(audioLength.equals("none")){
-                playButton.setImageResource(R.drawable.play24);
+//                playButton.setImageResource(R.drawable.play24);
                 Log.i("Button press", "only pic display");
             }
             else {
@@ -157,7 +157,7 @@ public class ResultsActivity extends AppCompatActivity implements MediaPlayer.On
                         length = mPlayer.getCurrentPosition();
                         if(length!=0) {
                             mPlayer.pause();
-                            playButton.setImageResource(R.drawable.play24);
+//                            playButton.setImageResource(R.drawable.play24);
                             Log.i("paused music at", length + "");
                         }
                         else{
@@ -165,13 +165,13 @@ public class ResultsActivity extends AppCompatActivity implements MediaPlayer.On
                             mPlayer = null;
                             mPlayer = MediaPlayer.create(getApplicationContext(), id);
                             Log.i("does lastStep!=step ?", (lastStep!=step)+"");
-                            playButton.setImageResource(R.drawable.pause24);
+//                            playButton.setImageResource(R.drawable.pause24);
                             playerStart();
                         }
                     } else if (!mPlayer.isPlaying()) {
                         mPlayer.seekTo(length);
                         Log.i("seek to music at", length + "");
-                        playButton.setImageResource(R.drawable.pause24);
+//                        playButton.setImageResource(R.drawable.pause24);
 
                         playerStart();
                     }
@@ -179,7 +179,7 @@ public class ResultsActivity extends AppCompatActivity implements MediaPlayer.On
                 else {
                     mPlayer.stop();
                     mPlayer = null;
-                    playButton.setImageResource(R.drawable.play24);
+//                    playButton.setImageResource(R.drawable.play24);
                 }
             }
         }
@@ -192,7 +192,7 @@ public class ResultsActivity extends AppCompatActivity implements MediaPlayer.On
             @Override
             public void onCompletion(MediaPlayer mp) {
                 Log.i("actually playing music", "yes");
-                playButton.setImageResource(R.drawable.play24);
+//                playButton.setImageResource(R.drawable.play24);
 
             }
         });
@@ -201,7 +201,7 @@ public class ResultsActivity extends AppCompatActivity implements MediaPlayer.On
     private int setStepMusic(String audioLength) {
         int id = -100000;
         if(audioLength!="none") {
-            id = getApplicationContext().getResources().getIdentifier("prayer", "raw", getApplicationContext().getPackageName());
+            id = getApplicationContext().getResources().getIdentifier("aumamen", "raw", getApplicationContext().getPackageName());
         }
         return id;
     }

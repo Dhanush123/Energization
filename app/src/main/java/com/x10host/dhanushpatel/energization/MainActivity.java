@@ -22,7 +22,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErrorListener {
 
@@ -280,12 +279,15 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             @Override
             public void onClick(View view) {
                 int stepP = stepSelected;
-                if(--stepP < 1){
-                    Toast.makeText(getApplicationContext(), "Can't seek back more.", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    if(stepP==1){
+//                if(--stepP < 1){
+//                    Toast.makeText(getApplicationContext(), "Can't seek back more.", Toast.LENGTH_SHORT).show();
+//                }
+//                else {
+                    if(stepP<=1){
                         startActivity(new Intent(getApplicationContext(),InstructionsActivity.class));
+            }
+                    else if(stepP==2){
+                        startActivity(new Intent(getApplicationContext(),BeginPrayerActivity.class));
                     }
                     else {
                         stepSelected--;
@@ -294,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
                         startMusic(stepSelected);
                         Log.i("Play music step", "" + stepSelected);
                     }
-                }
+//                }
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
@@ -304,8 +306,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
                 if(stepN==42){
                     startActivity(new Intent(getApplicationContext(),ResultsActivity.class));
                 }
-                else if (++stepN > 43) {
-                    Toast.makeText(getApplicationContext(), "Can't seek forward more.", Toast.LENGTH_SHORT).show();
+                else if (stepN==43) {
+                    startActivity(new Intent(getApplicationContext(),FinalActivity.class));
+                    //Toast.makeText(getApplicationContext(), "Can't seek forward more.", Toast.LENGTH_SHORT).show();
                 } else {
                     stepSelected++;
                     seekBarStep.setProgress(stepSelected);
@@ -321,26 +324,21 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             public void onProgressChanged(SeekBar seekBarStep, int progressValue, boolean fromUser) {
                 stepSelected = progressValue;
                 seekBarStep.setProgress(stepSelected);
-                if (stepSelected < 2) {
-                    if (stepSelected == 0) {
-                        stepSelected = ++progressValue;
-                    }
-                    previousButton.setVisibility(View.GONE);
+                if (stepSelected==1) {
                     startActivity(new Intent(getApplicationContext(), InstructionsActivity.class));
-                } else {
-                    previousButton.setVisibility(View.VISIBLE);
                 }
-
-
-                if (stepSelected == 43) {
-                    nextButton.setVisibility(View.GONE);
-                } else {
+                else if(stepSelected==2){
+                    startActivity(new Intent(getApplicationContext(), BeginPrayerActivity.class));
+                }
+                else if (stepSelected==42) {
+                    startActivity(new Intent(getApplicationContext(), ResultsActivity.class));
+                }
+                else if (stepSelected==43) {
+                    startActivity(new Intent(getApplicationContext(), FinalActivity.class));
+                }
+                else {
                     nextButton.setVisibility(View.VISIBLE);
-                }
-
-                if (stepSelected == 0 || stepSelected == 1 || stepSelected == 43) {
-                    playButton.setVisibility(View.GONE);
-                } else {
+                    previousButton.setVisibility(View.VISIBLE);
                     playButton.setVisibility(View.VISIBLE);
                 }
                 startMusic(stepSelected);
@@ -354,9 +352,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBarStep) {
-                if (stepSelected > 43) {
-                    stepSelected = 43;
-                }
                 stepShow.setText("Selected: " + stepSelected + " of " + seekBarStep.getMax());
                 // textView.setText("Covered: " + progress + "/" + seekBarStep.getMax());
                 // Toast.makeText(getApplicationContext(), "Stopped tracking seekbar", Toast.LENGTH_SHORT).show();
@@ -369,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         //boolean showedIntro = getIntent().getBooleanExtra("showedIntro",true);
         if (stepChosen == 2) {
             //prayer
-            startActivity(new Intent(this,BeginPrayerActivity.class));
+//            startActivity(new Intent(this,BeginPrayerActivity.class));
         } else if (stepChosen == 3) {
             //first actual exercise
             iv.setImageResource(R.drawable.body1);
@@ -490,17 +485,17 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
             stepNumName.setText("39: Double Breathing (without tension)");
         }
         //--- new
-        else if (stepChosen == 42) {
-            startActivity(new Intent(this,ResultsActivity.class));
-//            //aum
-//            iv.setImageResource(R.drawable.aum);
-//            stepNumName.setText("Namaste"+"\nNumber of sets complete: "+getCompletedSets());
-        }
-        else if (stepChosen == 43) {
-            //founder & quote
-            stepNumName.setText("");
-            iv.setImageResource(R.drawable.founder);
-        }
+//        else if (stepChosen == 42) {
+////            startActivity(new Intent(this,ResultsActivity.class));
+////            //aum
+////            iv.setImageResource(R.drawable.aum);
+////            stepNumName.setText("Namaste"+"\nNumber of sets complete: "+getCompletedSets());
+//        }
+//        else if (stepChosen == 43) {
+//            //founder & quote
+////            stepNumName.setText("");
+////            iv.setImageResource(R.drawable.founder);
+//        }
         //--- new ended
     }
 
@@ -562,11 +557,11 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnErr
         }
 
         //error checking
-        if (id==-100000 && stepChosen!=0 && stepChosen!=1 && stepChosen!=2 && stepChosen!=43){
-            Toast.makeText(getApplicationContext(),"ERROR: Can't play sound file",
-                    Toast.LENGTH_LONG).show();
-            Log.e("Music play error", "couldn't play sound file");
-        }
+//        if (id==-100000){
+//            Toast.makeText(getApplicationContext(),"ERROR: Can't play sound file",
+//                    Toast.LENGTH_LONG).show();
+//            Log.e("Music play error", "couldn't play sound file");
+//        }
         return id;
     }
     @Override
