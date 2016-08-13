@@ -49,6 +49,17 @@
 
     </LinearLayout>
 
+    <ImageButton
+        android:id="@+id/playButton1"
+        android:layout_width="100dip"
+        android:layout_height="50dip"
+        android:src="@drawable/play24"
+        android:contentDescription="image"
+        android:background="@null"
+        android:layout_weight="1"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -57,9 +68,7 @@
         android:id="@+id/resultsCaption"
         android:layout_below="@+id/resultImg"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="5dp"/>
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -70,9 +79,7 @@
         android:layout_below="@+id/resultsCaption"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:textColor="#FFFFFF"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="5dp"/>
+        android:textColor="#FFFFFF"/>
 
 
 </RelativeLayout>
